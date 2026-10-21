@@ -93,6 +93,22 @@ run "dlq_alarm" {
     alert_email          = "alerts@example.com"
   }
 
+  # The mock gives every resource of a type the same values. Pin distinct ones
+  # so a reference to the wrong resource or attribute fails.
+  override_resource {
+    target = aws_sns_topic.alerts
+    values = {
+      arn = "arn:aws:sns:us-east-1:210987654321:demo-alerts"
+    }
+  }
+
+  override_resource {
+    target = aws_cloudwatch_metric_alarm.dlq_not_empty
+    values = {
+      arn = "arn:aws:cloudwatch:us-east-1:210987654321:alarm:demo-scan-dlq-not-empty"
+    }
+  }
+
   assert {
     condition = (
       length(trimspace(try(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_description, ""))) > 0 &&
@@ -111,8 +127,23 @@ run "dlq_alarm" {
   }
 
   assert {
-    condition     = try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions), 0) == 0 && try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.ok_actions), 0) == 0 && try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.insufficient_data_actions), 0) == 0
-    error_message = "aws_cloudwatch_metric_alarm.dlq_not_empty must have no alarm, ok, or insufficient-data actions: the alerts topic's policy lets only the alert rule publish, so an action pointing at it would fail silently."
+    condition = (
+      toset(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions) == toset(["arn:aws:sns:us-east-1:210987654321:demo-alerts"]) &&
+      try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.ok_actions), 0) == 0 &&
+      try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.insufficient_data_actions), 0) == 0
+    )
+    error_message = "aws_cloudwatch_metric_alarm.dlq_not_empty needs alarm_actions = a list holding the arn of aws_sns_topic.alerts, and no ok_actions or insufficient_data_actions: only the move into ALARM sends mail (got ${jsonencode(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions)})."
+  }
+
+  assert {
+    condition = length([
+      for st in data.aws_iam_policy_document.alerts_topic.statement : st
+      if st.sid == "AllowDlqAlarmToPublish" && st.effect == "Allow" && toset(st.actions) == toset(["sns:Publish"]) &&
+      toset(st.resources) == toset(["arn:aws:sns:us-east-1:210987654321:demo-alerts"]) &&
+      length(st.principals) == 1 && alltrue([for p in st.principals : p.type == "Service" && toset(p.identifiers) == toset(["cloudwatch.amazonaws.com"])]) &&
+      length(st.condition) == 1 && alltrue([for c in st.condition : c.test == "ArnEquals" && c.variable == "aws:SourceArn" && toset(c.values) == toset(["arn:aws:cloudwatch:us-east-1:210987654321:alarm:demo-scan-dlq-not-empty"])])
+    ]) == 1 && length(data.aws_iam_policy_document.alerts_topic.statement) == 2
+    error_message = "data.aws_iam_policy_document.alerts_topic needs a second statement, sid AllowDlqAlarmToPublish: Allow sns:Publish on the topic's arn for principal type \"Service\", identifiers [\"cloudwatch.amazonaws.com\"], with condition ArnEquals aws:SourceArn = the DLQ alarm's arn, and the document must hold exactly two statements (the alert rule's and the alarm's)."
   }
 
   assert {
