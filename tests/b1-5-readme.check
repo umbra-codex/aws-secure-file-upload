@@ -1,0 +1,22 @@
+# B1 step 5: modules/upload_api/README.md documents the module.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/upload_api/README.md | ^# | must start with a title (a line beginning with #)
+modules/upload_api/README.md | ^##+ .*Requirements | needs a "Requirements" section
+modules/upload_api/README.md | ^##+ .*Inputs | needs an "Inputs" section
+modules/upload_api/README.md | ^##+ .*Outputs | needs an "Outputs" section
+modules/upload_api/README.md | ^\| *`?archive`? *\| | needs a Requirements row for the archive provider
+modules/upload_api/README.md | ^\| *`?project_name`? *\| | needs a table row for the project_name input
+modules/upload_api/README.md | ^\| *`?incoming_bucket_name`? *\| | needs a table row for the incoming_bucket_name input
+modules/upload_api/README.md | ^\| *`?incoming_bucket_arn`? *\| | needs a table row for the incoming_bucket_arn input
+modules/upload_api/README.md | ^\| *`?table_name`? *\| | needs a table row for the table_name input
+modules/upload_api/README.md | ^\| *`?table_arn`? *\| | needs a table row for the table_arn input
+modules/upload_api/README.md | ^\| *`?allowed_types`? *\| | needs a table row for the allowed_types input
+modules/upload_api/README.md | ^\| *`?max_size_mb`? *\| | needs a table row for the max_size_mb input
+modules/upload_api/README.md | ^\| *`?router_function_name`? *\| | needs a table row for the router_function_name input
+modules/upload_api/README.md | ^\| *`?dlq_name`? *\| | needs a table row for the dlq_name input
+modules/upload_api/README.md | ^\| *`?router_failures_queue_name`? *\| | needs a table row for the router_failures_queue_name input
+modules/upload_api/README.md | ^\| *`?api_url`? *\| | needs a table row for the api_url output
+modules/upload_api/README.md | ^\| *`?api_id`? *\| | needs a table row for the api_id output
+modules/upload_api/README.md | ^\| *`?api_execution_arn`? *\| | needs a table row for the api_execution_arn output
+modules/upload_api/README.md | ^\| *`?upload_role_arn`? *\| | needs a table row for the upload_role_arn output
+modules/upload_api/README.md | ^\| *`?upload_function_name`? *\| | needs a table row for the upload_function_name output

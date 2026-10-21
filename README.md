@@ -152,9 +152,9 @@ Each brief lists the milestones it depends on. Briefs appear in `docs/milestones
 | A2 | Expiration rules and the uploads table | [A2.md](docs/milestones/A2.md) |
 | A3 | Bucket policies | [A3.md](docs/milestones/A3.md) |
 | A4 | The status endpoint | [A4.md](docs/milestones/A4.md) |
-| B1 | Lambda 1 and its role | coming |
-| B2 | HTTP API and presigned POST | coming |
-| B3 | Throttling, dashboard, alarms | coming |
+| B1 | Lambda 1 and its role | [B1.md](docs/milestones/B1.md) |
+| B2 | HTTP API and the upload size limit | [B2.md](docs/milestones/B2.md) |
+| B3 | Throttling, CORS, alarms, dashboard | [B3.md](docs/milestones/B3.md) |
 | C1 | GuardDuty Malware Protection plan | coming |
 | C2 | Scan-result rule and DLQ | coming |
 | C3 | Alerts | coming |

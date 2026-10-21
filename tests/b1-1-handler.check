@@ -1,0 +1,16 @@
+# B1 step 1: modules/upload_api/src/handler.py, Lambda 1's code.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/upload_api/src/handler.py | ^def handler\(event, context\): | must define the entry point: def handler(event, context):
+modules/upload_api/src/handler.py | TABLE_NAME | must read the table name from the TABLE_NAME environment variable
+modules/upload_api/src/handler.py | BUCKET_NAME | must read the bucket name from the BUCKET_NAME environment variable
+modules/upload_api/src/handler.py | ALLOWED_TYPES | must read the allowed types from the ALLOWED_TYPES environment variable
+modules/upload_api/src/handler.py | MAX_SIZE_MB | must read the size limit from the MAX_SIZE_MB environment variable
+modules/upload_api/src/handler.py | uuid4 | must create upload_id with uuid.uuid4()
+modules/upload_api/src/handler.py | put_item | must write the row with put_item
+modules/upload_api/src/handler.py | PENDING | must write status PENDING
+modules/upload_api/src/handler.py | expires_at | must write expires_at
+modules/upload_api/src/handler.py | generate_presigned_post | must sign the upload with generate_presigned_post
+modules/upload_api/src/handler.py | uploads/\{upload_id\}/ | must build the key as an f-string starting uploads/{upload_id}/
+modules/upload_api/src/handler.py | 900 | must use a 15-minute (900-second) expiry
+modules/upload_api/src/handler.py | extra=\{ *["']upload_id["'] *: | must log upload_id as a structured field named upload_id: logger.info(..., extra={"upload_id": upload_id})
+modules/upload_api/src/handler.py | 400 | must return 400 for a request it rejects
