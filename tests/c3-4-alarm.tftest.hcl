@@ -151,3 +151,48 @@ run "dlq_alarm" {
     error_message = "aws_cloudwatch_metric_alarm.dlq_not_empty needs tags Name = \"demo-scan-dlq-not-empty\", Role = \"observability\", ManagedBy = \"terraform\" (got ${jsonencode(aws_cloudwatch_metric_alarm.dlq_not_empty.tags)})."
   }
 }
+
+# The alarm action and the alarm's policy statement must follow the topic and
+# the alarm, not text that happens to equal the values above.
+run "alarm_wiring_follows_its_inputs" {
+  module {
+    source = "./modules/scanning"
+  }
+
+  variables {
+    project_name         = "other"
+    incoming_bucket_name = "other-incoming-111122223333"
+    incoming_bucket_arn  = "arn:aws:s3:::other-incoming-111122223333"
+    router_lambda_arn    = "arn:aws:lambda:eu-west-2:111122223333:function:other-router"
+    alert_email          = "alerts@example.com"
+  }
+
+  override_resource {
+    target = aws_sns_topic.alerts
+    values = {
+      arn = "arn:aws:sns:eu-west-2:111122223333:other-alerts"
+    }
+  }
+
+  override_resource {
+    target = aws_cloudwatch_metric_alarm.dlq_not_empty
+    values = {
+      arn = "arn:aws:cloudwatch:eu-west-2:111122223333:alarm:other-scan-dlq-not-empty"
+    }
+  }
+
+  assert {
+    condition     = try(toset(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions), toset([])) == toset(["arn:aws:sns:eu-west-2:111122223333:other-alerts"])
+    error_message = "alarm_actions must hold the arn of aws_sns_topic.alerts, not fixed text (got ${jsonencode(try(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions, []))})."
+  }
+
+  assert {
+    condition = length([
+      for st in data.aws_iam_policy_document.alerts_topic.statement : st
+      if st.sid == "AllowDlqAlarmToPublish" &&
+      toset(st.resources) == toset(["arn:aws:sns:eu-west-2:111122223333:other-alerts"]) &&
+      length(st.condition) == 1 && alltrue([for c in st.condition : toset(c.values) == toset(["arn:aws:cloudwatch:eu-west-2:111122223333:alarm:other-scan-dlq-not-empty"])])
+    ]) == 1
+    error_message = "The alarm's policy statement must take its resource from the topic's arn and its aws:SourceArn from the alarm's arn, not fixed text."
+  }
+}
