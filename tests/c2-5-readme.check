@@ -1,0 +1,5 @@
+# C2 step 5: modules/scanning/README.md documents the new outputs.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/scanning/README.md | ^\| *`?scan_rule_arn`? *\| | needs a table row for the scan_rule_arn output
+modules/scanning/README.md | ^\| *`?dlq_arn`? *\| | needs a table row for the dlq_arn output
+modules/scanning/README.md | ^\| *`?dlq_name`? *\| | needs a table row for the dlq_name output

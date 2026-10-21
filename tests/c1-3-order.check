@@ -1,0 +1,3 @@
+# C1 step 3: the plan waits for the role's permissions.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/scanning/guardduty.tf | ^ *depends_on *= *\[ *aws_iam_role_policy\.guardduty *\] *(#.*)?$ | must wait for the permissions: depends_on = [aws_iam_role_policy.guardduty], on one line
