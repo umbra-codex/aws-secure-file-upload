@@ -41,9 +41,9 @@ The target DLQ only catches events EventBridge couldn't deliver (missing permiss
 ## Alerts (C3)
 
 - One SNS topic with an email subscription to `alert_email`. Each person confirms their subscription email after `apply`.
-- A topic policy allowing `events.amazonaws.com` to `sns:Publish`, with `aws:SourceArn` set to the alert rule.
+- A topic policy allowing `events.amazonaws.com` to `sns:Publish`, with `aws:SourceArn` set to the alert rule, and a second statement allowing `cloudwatch.amazonaws.com` to `sns:Publish`, with `aws:SourceArn` set to the DLQ alarm.
 - One alert rule matching scan results with `THREATS_FOUND`, plus `GuardDuty Malware Protection Resource Status Error` events. The two events have different shapes, so the pattern uses `$or` (see [C3](../milestones/C3.md)).
-- A CloudWatch alarm when the target DLQ holds any message.
+- A CloudWatch alarm when the target DLQ holds any message. It publishes to the alerts topic when it enters `ALARM`, so the same address is emailed.
 
 ## Your interface
 
@@ -57,7 +57,7 @@ The target DLQ only catches events EventBridge couldn't deliver (missing permiss
 |---|---|---|
 | GuardDuty plan role | the seven statements of the policy in the AWS doc (no KMS statement: our buckets use SSE-S3) | Incoming bucket |
 | DLQ queue policy | `events.amazonaws.com` → `sqs:SendMessage`, only from the scan rule | the DLQ |
-| alerts topic policy | `events.amazonaws.com` → `sns:Publish`, only from the alert rule | the topic |
+| alerts topic policy | `events.amazonaws.com` → `sns:Publish`, only from the alert rule; `cloudwatch.amazonaws.com` → `sns:Publish`, only from the DLQ alarm | the topic |
 
 ## Well-Architected items you deliver
 
