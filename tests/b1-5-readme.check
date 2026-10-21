@@ -1,6 +1,6 @@
 # B1 step 5: modules/upload_api/README.md documents the module.
 # Names must appear as the first cell of a table row (| name |), not just anywhere.
-modules/upload_api/README.md | ^# | must start with a title (a line beginning with #)
+modules/upload_api/README.md | ^# [A-Za-z] | must start with a title: a line beginning with one # and a name (## is a subheading, not a title)
 modules/upload_api/README.md | ^##+ .*Requirements | needs a "Requirements" section
 modules/upload_api/README.md | ^##+ .*Inputs | needs an "Inputs" section
 modules/upload_api/README.md | ^##+ .*Outputs | needs an "Outputs" section

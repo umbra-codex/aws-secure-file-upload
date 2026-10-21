@@ -1,7 +1,7 @@
 # A1 step 4: modules/storage/bucket/README.md documents the module.
 # Format: file | regular expression the file must contain | message if it doesn't
 # Names must appear as the first cell of a table row (| name |), not just anywhere.
-modules/storage/bucket/README.md | ^# | must start with a title (a line beginning with #)
+modules/storage/bucket/README.md | ^# [A-Za-z] | must start with a title: a line beginning with one # and a name (## is a subheading, not a title)
 modules/storage/bucket/README.md | ^##+ .*Requirements | needs a "Requirements" section
 modules/storage/bucket/README.md | ^##+ .*Inputs | needs an "Inputs" section
 modules/storage/bucket/README.md | ^##+ .*Outputs | needs an "Outputs" section
