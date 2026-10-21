@@ -47,6 +47,22 @@ run "status_role" {
     }
   }
 
+  # The mock gives every policy document the same JSON, so a reference to the
+  # wrong document would pass. Pin a distinct JSON for each one.
+  override_data {
+    target = data.aws_iam_policy_document.assume
+    values = {
+      json = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"MockAssume\"}]}"
+    }
+  }
+
+  override_data {
+    target = data.aws_iam_policy_document.permissions
+    values = {
+      json = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"MockPermissions\"}]}"
+    }
+  }
+
   assert {
     condition     = aws_iam_role.status.name == "demo-status"
     error_message = "aws_iam_role.status must be named <project_name>-status (got ${aws_iam_role.status.name})."
