@@ -1,0 +1,2 @@
+# A2 step 4: the bucket module README documents expiration.
+modules/storage/bucket/README.md | ^\| *`?expiration_days`? *\| | needs a table row for expiration_days (input and output)

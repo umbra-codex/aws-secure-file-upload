@@ -1,0 +1,21 @@
+# Terraform working files and state: never commit these
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Your personal settings (copy the .example files)
+*.tfvars
+*.tfvars.json
+backend.hcl
+
+# Lambda build artifacts
+*.zip
+__pycache__/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

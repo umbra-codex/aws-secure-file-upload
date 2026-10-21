@@ -1,0 +1,7 @@
+# Copy to backend.hcl and fill in. backend.hcl is gitignored.
+# Use the state bucket you created in the README's "Bootstrap" step.
+bucket       = "secure-upload-123456789012-tfstate"
+key          = "aws-secure-file-upload/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true # S3-native state locking, Terraform 1.10+ (DynamoDB locking is deprecated)

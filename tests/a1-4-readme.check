@@ -1,0 +1,15 @@
+# A1 step 4: modules/storage/bucket/README.md documents the module.
+# Format: file | regular expression the file must contain | message if it doesn't
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/storage/bucket/README.md | ^# | must start with a title (a line beginning with #)
+modules/storage/bucket/README.md | ^##+ .*Requirements | needs a "Requirements" section
+modules/storage/bucket/README.md | ^##+ .*Inputs | needs an "Inputs" section
+modules/storage/bucket/README.md | ^##+ .*Outputs | needs an "Outputs" section
+modules/storage/bucket/README.md | ^\| *`?bucket_name`? *\| | needs a table row for bucket_name (input and output)
+modules/storage/bucket/README.md | ^\| *`?enable_versioning`? *\| | needs a table row for the enable_versioning input
+modules/storage/bucket/README.md | ^\| *`?cors_allowed_origins`? *\| | needs a table row for the cors_allowed_origins input
+modules/storage/bucket/README.md | ^\| *`?tags`? *\| | needs a table row for tags (input and output)
+modules/storage/bucket/README.md | ^\| *`?bucket_id`? *\| | needs a table row for the bucket_id output
+modules/storage/bucket/README.md | ^\| *`?bucket_arn`? *\| | needs a table row for the bucket_arn output
+modules/storage/bucket/README.md | ^\| *`?versioning_enabled`? *\| | needs a table row for the versioning_enabled output
+modules/storage/bucket/README.md | ^\| *`?cors_enabled`? *\| | needs a table row for the cors_enabled output

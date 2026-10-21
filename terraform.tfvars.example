@@ -1,0 +1,10 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+project_name = "secure-upload"      # 3-20 chars, lowercase, numbers, hyphens
+owner        = "your-github-handle"
+alert_email  = "you@example.com"
+
+# Optional (defaults shown)
+# region               = "us-east-1"
+# allowed_types        = ["image/png", "image/jpeg", "application/pdf"]
+# max_size_mb          = 25
+# cors_allowed_origins = []          # e.g. ["http://localhost:3000"] if you test from a browser

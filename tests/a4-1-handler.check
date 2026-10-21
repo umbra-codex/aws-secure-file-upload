@@ -1,0 +1,8 @@
+# A4 step 1: modules/status/src/handler.py, the status Lambda's code.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/status/src/handler.py | ^def handler\(event, context\): | must define the entry point: def handler(event, context):
+modules/status/src/handler.py | TABLE_NAME | must read the table name from the TABLE_NAME environment variable
+modules/status/src/handler.py | get_item | must look the row up with get_item (a key lookup, never a scan)
+modules/status/src/handler.py | pathParameters | must read upload_id from the event's pathParameters
+modules/status/src/handler.py | EXPIRED | must report EXPIRED for a PENDING row whose expires_at has passed
+modules/status/src/handler.py | 404 | must return 404 when no row has that upload_id
