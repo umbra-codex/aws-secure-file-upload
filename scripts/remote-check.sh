@@ -93,7 +93,10 @@ latest_run() {
 
 echo "Checking the last commit you pushed to $branch ($(git rev-parse --short "@{u}"))"
 before=$(latest_run)
-gh workflow run ci.yml --ref "$branch" -f milestone="$target" || exit 1
+if ! out=$(gh workflow run ci.yml --ref "$branch" -f milestone="$target" 2>&1); then
+  echo "❌ Couldn't start the run:"; echo "$out"
+  exit 1
+fi
 
 echo "Waiting for GitHub to start the run..."
 run=""
