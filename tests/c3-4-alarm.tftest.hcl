@@ -128,7 +128,7 @@ run "dlq_alarm" {
 
   assert {
     condition = (
-      toset(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions) == toset(["arn:aws:sns:us-east-1:210987654321:demo-alerts"]) &&
+      try(toset(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions), toset([])) == toset(["arn:aws:sns:us-east-1:210987654321:demo-alerts"]) &&
       try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.ok_actions), 0) == 0 &&
       try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.insufficient_data_actions), 0) == 0
     )

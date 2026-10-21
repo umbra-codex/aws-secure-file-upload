@@ -172,8 +172,8 @@ run "alerts_topic" {
       toset(st.resources) == toset(["arn:aws:sns:us-east-1:210987654321:demo-alerts"]) &&
       length(st.principals) == 1 && alltrue([for p in st.principals : p.type == "Service" && toset(p.identifiers) == toset(["events.amazonaws.com"])]) &&
       length(st.condition) == 1 && alltrue([for c in st.condition : c.test == "ArnEquals" && c.variable == "aws:SourceArn" && toset(c.values) == toset(["arn:aws:events:us-east-1:210987654321:rule/demo-alerts"])])
-    ]) == 1
-    error_message = "data.aws_iam_policy_document.alerts_topic needs a statement with sid AllowAlertRuleToPublish: Allow sns:Publish on the topic's arn for principal type \"Service\", identifiers [\"events.amazonaws.com\"], with condition ArnEquals aws:SourceArn = the alert rule's arn (not the scan-result rule's)."
+    ]) == 1 && length(data.aws_iam_policy_document.alerts_topic.statement) <= 2
+    error_message = "data.aws_iam_policy_document.alerts_topic needs a statement with sid AllowAlertRuleToPublish (and at most one more, the alarm's, added in Part 4): Allow sns:Publish on the topic's arn for principal type \"Service\", identifiers [\"events.amazonaws.com\"], with condition ArnEquals aws:SourceArn = the alert rule's arn (not the scan-result rule's)."
   }
 
   assert {
