@@ -1,0 +1,5 @@
+# B3 step 1: the new cors_allowed_origins input, and the root passing it in.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/upload_api/variables.tf | ^variable "cors_allowed_origins" | must declare a cors_allowed_origins variable
+upload_api.tf | ^ *cors_allowed_origins *= *var\.cors_allowed_origins *(#.*)?$ | must pass cors_allowed_origins = var.cors_allowed_origins into the module
+modules/upload_api/variables.tf | ^ *default *= *\[ *\] *$ | must give cors_allowed_origins default = []
