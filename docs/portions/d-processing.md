@@ -1,6 +1,6 @@
 # Portion D: Processing
 
-**Owner:** (unassigned) · **Module:** `modules/processing/` (wired in `processing.tf`) · **Code:** `lambdas/router/`, `scripts/redrive.sh` · **Milestones:** D1, D2, D3, D4
+**Owner:** (unassigned) · **Module:** `modules/processing/` (wired in `processing.tf`) · **Code:** `modules/processing/src/`, `scripts/redrive.sh` · **Milestones:** D1, D2, D3, D4
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 

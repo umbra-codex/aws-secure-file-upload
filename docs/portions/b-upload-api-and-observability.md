@@ -1,6 +1,6 @@
 # Portion B: Upload API and Observability
 
-**Owner:** (unassigned) · **Module:** `modules/upload_api/` (wired in `upload_api.tf`) · **Code:** `lambdas/upload_url/` · **Milestones:** B1, B2, B3
+**Owner:** (unassigned) · **Module:** `modules/upload_api/` (wired in `upload_api.tf`) · **Code:** `modules/upload_api/src/` · **Milestones:** B1, B2, B3
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 
@@ -16,7 +16,7 @@ The front door and the dashboard. Clients ask your API for an upload URL; your L
 | B2 | `b2-api` | HTTP API with `POST /upload-url` → Lambda 1, access logging to a 14-day log group, and the presigned POST conditions below | B1 | `curl` gets a URL; uploading with it lands at the expected key; an oversize upload is rejected by S3 |
 | B3 | `b3-observability` | API throttling, API CORS, one CloudWatch dashboard, and Lambda error alarms | B2, C2, D2 | The dashboard shows a test upload; a forced Lambda error flips an alarm |
 
-The brief for each milestone will be in the repo at `docs/milestones/<ID>.md`. Every push to your branch runs the check on GitHub; `scripts/remote-check.sh` re-runs it on demand.
+Briefs: [B1](../milestones/B1.md) · [B2](../milestones/B2.md) · [B3](../milestones/B3.md). Every push to your branch runs the check on GitHub; `scripts/remote-check.sh` re-runs it on demand.
 
 ## What Lambda 1 does
 
@@ -26,7 +26,7 @@ The brief for each milestone will be in the repo at `docs/milestones/<ID>.md`. E
 4. Clean the filename: strip `/`, `..`, and control characters, and cap the length.
 5. Write the row: `upload_id`, `filename`, `declared_type`, `declared_size`, `status = PENDING`, `created_at`, and `expires_at` = now + presign expiry + 1 hour (epoch seconds). The full layout is in the overview's DynamoDB contract.
 6. Return a presigned POST for the Incoming bucket with these conditions:
-   - the key starts with exactly `uploads/{upload_id}/`
+   - the key is exactly `uploads/{upload_id}/{safe_filename}` (boto3 adds this condition when it's given the key)
    - `content-length-range` from 1 byte to `max_size_mb`
    - a 15-minute expiry
 
