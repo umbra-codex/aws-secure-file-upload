@@ -16,7 +16,7 @@ The security core. You turn on GuardDuty's malware scanning for the Incoming buc
 | C2 | `c2-scan-rule` | The scan-result EventBridge rule targeting Lambda 2, an explicit retry policy, the target DLQ with its queue policy, and the Lambda permission | C1, D1 | An upload produces a Lambda 2 log line containing its `upload_id` |
 | C3 | `c3-alerts` | The alerts SNS topic with its topic policy and an email subscription, an alert rule, and an alarm on DLQ depth | C2 | Uploading the EICAR test file sends an email |
 
-The brief for each milestone will be in the repo at `docs/milestones/<ID>.md`. Every push to your branch runs the check on GitHub; `scripts/remote-check.sh` re-runs it on demand.
+Briefs: [C1](../milestones/C1.md) · [C2](../milestones/C2.md) · [C3](../milestones/C3.md). Every push to your branch runs the check on GitHub; `scripts/remote-check.sh` re-runs it on demand.
 
 ## GuardDuty facts you build on
 
@@ -42,20 +42,20 @@ The target DLQ only catches events EventBridge couldn't deliver (missing permiss
 
 - One SNS topic with an email subscription to `alert_email`. Each person confirms their subscription email after `apply`.
 - A topic policy allowing `events.amazonaws.com` to `sns:Publish`, with `aws:SourceArn` set to the alert rule.
-- An alert rule matching scan results with `THREATS_FOUND`, plus `GuardDuty Malware Protection Resource Status Error` events.
+- One alert rule matching scan results with `THREATS_FOUND`, plus `GuardDuty Malware Protection Resource Status Error` events. The two events have different shapes, so the pattern uses `$or` (see [C3](../milestones/C3.md)).
 - A CloudWatch alarm when the target DLQ holds any message.
 
 ## Your interface
 
 | Outputs (others depend on these) | Inputs |
 |---|---|
-| `guardduty_role_arn` (C1); `scan_rule_arn`, `dlq_arn`, `dlq_name` (C2; B's dashboard reads `dlq_name`); `alerts_topic_arn` (C3) | `project_name`, `incoming_bucket_name/arn`, `router_lambda_arn` (from D1), `alert_email` |
+| `guardduty_role_arn`, `guardduty_plan_id` (C1); `scan_rule_arn`, `dlq_arn`, `dlq_name` (C2; B's dashboard reads `dlq_name`); `alerts_topic_arn`, `alert_rule_name`, `alarm_names` (C3) | `project_name`, `incoming_bucket_name/arn`, `router_lambda_arn` (from D1), `alert_email` |
 
 ## Your permissions
 
 | Role or policy | Grants | Resource |
 |---|---|---|
-| GuardDuty plan role | the policy from the AWS doc (read, version, and tag objects) | Incoming bucket |
+| GuardDuty plan role | the seven statements of the policy in the AWS doc (no KMS statement: our buckets use SSE-S3) | Incoming bucket |
 | DLQ queue policy | `events.amazonaws.com` → `sqs:SendMessage`, only from the scan rule | the DLQ |
 | alerts topic policy | `events.amazonaws.com` → `sns:Publish`, only from the alert rule | the topic |
 
