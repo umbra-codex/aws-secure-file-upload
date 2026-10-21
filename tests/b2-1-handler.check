@@ -1,0 +1,4 @@
+# B2 step 1: modules/upload_api/src/handler.py adds the size condition to the presigned POST.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/upload_api/src/handler.py | content-length-range["'] *, *1 *, *[A-Za-z_(] | must add ["content-length-range", 1, <limit>] where the limit is the same bytes value the handler checks (a name or expression, not a number typed in)
+modules/upload_api/src/handler.py | Conditions *= | must pass the condition to generate_presigned_post as Conditions=[...]

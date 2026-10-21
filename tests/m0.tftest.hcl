@@ -38,6 +38,22 @@ mock_provider "aws" {
       arn = "arn:aws:logs:us-east-1:210987654321:log-group:mock"
     }
   }
+
+  mock_resource "aws_apigatewayv2_api" {
+    defaults = {
+      arn           = "arn:aws:apigateway:us-east-1::/apis/mock-api"
+      execution_arn = "arn:aws:execute-api:us-east-1:210987654321:mock-api"
+      api_endpoint  = "https://mock-api.execute-api.us-east-1.amazonaws.com"
+    }
+  }
+
+  mock_resource "aws_apigatewayv2_stage" {
+    defaults = {
+      arn           = "arn:aws:apigateway:us-east-1::/apis/mock-api/stages/$default"
+      execution_arn = "arn:aws:execute-api:us-east-1:210987654321:mock-api/$default"
+      invoke_url    = "https://mock-api.execute-api.us-east-1.amazonaws.com/"
+    }
+  }
 }
 
 variables {

@@ -115,7 +115,7 @@ flowchart TD
 | [C: Scanning and Events](portions/c-scanning-and-events.md) | TBD | GuardDuty, EventBridge, failure queue, alerts | C1-C3 |
 | [D: Processing](portions/d-processing.md) | TBD | Lambda 2, failure queue, redrive | D1-D4 |
 
-Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. M0 and A1 to A4 exist today; B, C, D, and INT briefs arrive as their milestones open. Umbra is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test.
+Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. M0, A1 to A4, and B1 to B3 exist today; C, D, and INT briefs arrive as their milestones open. Umbra is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test.
 
 **Schedule** (merge in this order within each week):
 
@@ -144,7 +144,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 
 1. **Branch:** `git checkout -b a1-buckets` (one branch per milestone, named exactly as its brief says; CI reads the milestone from the name). No forks during the build.
 2. **Build file by file** following the brief in `docs/milestones/<ID>.md`. It names every resource, argument, and value, and links the docs, but gives no code.
-3. **Checkpoint after each file:** `terraform fmt -recursive`, commit, push. The first checkpoint also opens a **draft** pull request.
+3. **Checkpoint after each file:** `terraform fmt -recursive`, commit, push. The first checkpoint also opens a **draft** pull request. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (`feat(b1): add upload handler`); A1's [Commit messages](milestones/A1.md#commit-messages) explains the format.
 4. **"Done when":** `terraform apply` in your own AWS account, run the brief's checks, then `terraform destroy`.
 5. **Finish:** add the milestone ID to `milestones.txt`, paste the "Done when" output into the PR, fill in the template's "What broke and why" (two lines; "nothing" is fine), and run `gh pr ready`. A teammate approves, and it merges into `main`. Reviewing means reading the diff against the brief, not only seeing a green check.
 
