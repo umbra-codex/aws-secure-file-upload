@@ -129,16 +129,8 @@ run "root_guardduty_plan_id" {
     alert_email  = "alerts@example.com"
   }
 
-  override_resource {
-    target = module.scanning.aws_guardduty_malware_protection_plan.incoming
-    values = {
-      id  = "mock-plan-id-0001"
-      arn = "arn:aws:guardduty:us-east-1:210987654321:malware-protection-plan/mock-plan-id-0001"
-    }
-  }
-
   assert {
-    condition     = output.guardduty_plan_id == "mock-plan-id-0001"
+    condition     = output.guardduty_plan_id == module.scanning.guardduty_plan_id && output.guardduty_plan_id != module.scanning.guardduty_role_arn
     error_message = "The root outputs.tf needs an output guardduty_plan_id = module.scanning.guardduty_plan_id (got ${try(output.guardduty_plan_id, "nothing")})."
   }
 }

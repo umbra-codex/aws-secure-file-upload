@@ -251,7 +251,7 @@ run "permissions_follow_their_inputs" {
   override_data {
     target = data.aws_caller_identity.current
     values = {
-      account_id = "999988887777"
+      account_id = "111122223333"
     }
   }
 
@@ -259,7 +259,7 @@ run "permissions_follow_their_inputs" {
     condition = length([
       for st in data.aws_iam_policy_document.permissions.statement : st
       if contains(["AllowManagedRuleToSendS3EventsToGuardDuty", "AllowGuardDutyToMonitorEventBridgeManagedRule"], st.sid) &&
-      toset(st.resources) == toset(["arn:aws:events:eu-west-2:999988887777:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"])
+      toset(st.resources) == toset(["arn:aws:events:eu-west-2:111122223333:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"])
     ]) == 2
     error_message = "Statements 1 and 2 must build the managed-rule ARN from the region of data.aws_region.current and the account_id of data.aws_caller_identity.current, not from fixed text."
   }

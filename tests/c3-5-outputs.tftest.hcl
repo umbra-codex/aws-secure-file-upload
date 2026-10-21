@@ -148,15 +148,8 @@ run "root_alert_outputs" {
     alert_email  = "alerts@example.com"
   }
 
-  override_resource {
-    target = module.scanning.aws_sns_topic.alerts
-    values = {
-      arn = "arn:aws:sns:us-east-1:210987654321:demo-alerts"
-    }
-  }
-
   assert {
-    condition     = output.alerts_topic_arn == "arn:aws:sns:us-east-1:210987654321:demo-alerts"
+    condition     = output.alerts_topic_arn == module.scanning.alerts_topic_arn && output.alerts_topic_arn != module.scanning.guardduty_role_arn
     error_message = "The root outputs.tf needs an output alerts_topic_arn = module.scanning.alerts_topic_arn (got ${try(output.alerts_topic_arn, "nothing")})."
   }
 
