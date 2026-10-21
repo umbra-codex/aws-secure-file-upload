@@ -155,9 +155,9 @@ Each brief lists the milestones it depends on. Briefs appear in `docs/milestones
 | B1 | Lambda 1 and its role | [B1.md](docs/milestones/B1.md) |
 | B2 | HTTP API and the upload size limit | [B2.md](docs/milestones/B2.md) |
 | B3 | Throttling, CORS, alarms, dashboard | [B3.md](docs/milestones/B3.md) |
-| C1 | GuardDuty Malware Protection plan | coming |
-| C2 | Scan-result rule and DLQ | coming |
-| C3 | Alerts | coming |
+| C1 | GuardDuty Malware Protection plan | [C1.md](docs/milestones/C1.md) |
+| C2 | Scan-result rule and DLQ | [C2.md](docs/milestones/C2.md) |
+| C3 | Alerts | [C3.md](docs/milestones/C3.md) |
 | D1 | Lambda 2 and its role | coming |
 | D2 | Routing, failure queue, redrive | coming |
 | D3 | File-type and size validation | coming |

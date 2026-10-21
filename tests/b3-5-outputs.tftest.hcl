@@ -53,6 +53,27 @@ mock_provider "aws" {
       invoke_url    = "https://mock-api.execute-api.us-east-1.amazonaws.com/"
     }
   }
+
+  # C adds a rule, a queue, and a topic whose ARNs and URLs other resources
+  # validate. Give every resource of these types a well-formed value.
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = {
+      arn = "arn:aws:events:us-east-1:210987654321:rule/mock-rule"
+    }
+  }
+
+  mock_resource "aws_sqs_queue" {
+    defaults = {
+      arn = "arn:aws:sqs:us-east-1:210987654321:mock-queue"
+      url = "https://sqs.us-east-1.amazonaws.com/210987654321/mock-queue"
+    }
+  }
+
+  mock_resource "aws_sns_topic" {
+    defaults = {
+      arn = "arn:aws:sns:us-east-1:210987654321:mock-topic"
+    }
+  }
 }
 
 run "observability_outputs" {

@@ -1,6 +1,6 @@
 # A4 step 6: modules/status/README.md documents the module.
 # Names must appear as the first cell of a table row (| name |), not just anywhere.
-modules/status/README.md | ^# | must start with a title (a line beginning with #)
+modules/status/README.md | ^# [^#[:space:]] | must start with a title: one # and a space, then the name (## is a subheading, not a title)
 modules/status/README.md | ^##+ .*Requirements | needs a "Requirements" section
 modules/status/README.md | ^##+ .*Inputs | needs an "Inputs" section
 modules/status/README.md | ^##+ .*Outputs | needs an "Outputs" section
