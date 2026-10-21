@@ -1,0 +1,17 @@
+# C1 step 5: modules/scanning/README.md documents the module.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/scanning/README.md | ^# | must start with a title (a line beginning with #)
+modules/scanning/README.md | ^##+ .*Requirements | needs a "Requirements" section
+modules/scanning/README.md | ^##+ .*Usage | needs a "Usage" section
+modules/scanning/README.md | ^##+ .*Inputs | needs an "Inputs" section
+modules/scanning/README.md | ^##+ .*Outputs | needs an "Outputs" section
+modules/scanning/README.md | ^\| *`?terraform`? *\| | needs a Requirements row for terraform
+modules/scanning/README.md | ^\| *`?aws`? *\| | needs a Requirements row for the aws provider
+modules/scanning/README.md | module "scanning" | the Usage block must show module "scanning"
+modules/scanning/README.md | ^\| *`?project_name`? *\| | needs a table row for the project_name input
+modules/scanning/README.md | ^\| *`?incoming_bucket_name`? *\| | needs a table row for the incoming_bucket_name input
+modules/scanning/README.md | ^\| *`?incoming_bucket_arn`? *\| | needs a table row for the incoming_bucket_arn input
+modules/scanning/README.md | ^\| *`?router_lambda_arn`? *\| | needs a table row for the router_lambda_arn input
+modules/scanning/README.md | ^\| *`?alert_email`? *\| | needs a table row for the alert_email input
+modules/scanning/README.md | ^\| *`?guardduty_role_arn`? *\| | needs a table row for the guardduty_role_arn output
+modules/scanning/README.md | ^\| *`?guardduty_plan_id`? *\| | needs a table row for the guardduty_plan_id output

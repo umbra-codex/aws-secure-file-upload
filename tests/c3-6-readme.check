@@ -1,0 +1,5 @@
+# C3 step 6: modules/scanning/README.md documents the new outputs.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/scanning/README.md | ^\| *`?alerts_topic_arn`? *\| | needs a table row for the alerts_topic_arn output
+modules/scanning/README.md | ^\| *`?alert_rule_name`? *\| | needs a table row for the alert_rule_name output
+modules/scanning/README.md | ^\| *`?alarm_names`? *\| | needs a table row for the alarm_names output
