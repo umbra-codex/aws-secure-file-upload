@@ -1,0 +1,7 @@
+# D1 step 1: modules/processing/src/handler.py, Lambda 2's first version.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/processing/src/handler.py | ^def handler\(event, context\): | must define the entry point: def handler(event, context):
+modules/processing/src/handler.py | scan_event | must log the whole event as a structured field named scan_event
+modules/processing/src/handler.py | extra=\{ *["']scan_event["'] *: | must log it with extra={"scan_event": event}
+modules/processing/src/handler.py | logging\.getLogger | must get a logger with logging.getLogger()
+modules/processing/src/handler.py | ^import logging | must start with import logging
