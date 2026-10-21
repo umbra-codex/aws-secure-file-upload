@@ -1,0 +1,75 @@
+name: ci
+
+# Runs on every push to any branch, and on demand:
+#   scripts/remote-check.sh            (or the "Run workflow" button on the Actions tab)
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      milestone:
+        description: "Milestone to check, e.g. A1. Leave blank to use the branch name (a1-buckets -> A1)."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the older run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.16.6"
+          terraform_wrapper: false
+
+      # Inputs arrive through env vars, never pasted into the script, so a
+      # crafted milestone value can't run commands.
+      - name: Work out which milestone to check
+        id: target
+        env:
+          INPUT_MILESTONE: ${{ inputs.milestone }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> "$GITHUB_ENV"
+          mkdir -p "$HOME/.terraform.d/plugin-cache"
+          m="$INPUT_MILESTONE"
+          if [ -n "$m" ] && ! printf '%s' "$m" | grep -Eq '^[A-Za-z0-9]{1,4}$'; then
+            echo "::error::milestone must look like A1, M0 or INT"; exit 1
+          fi
+          if [ -z "$m" ]; then
+            m=$(printf '%s' "$BRANCH" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')
+          fi
+          echo "milestone=$m" >> "$GITHUB_OUTPUT"
+          echo "Checking ${m:-no branch milestone} plus everything in milestones.txt"
+
+      - name: Cache the AWS provider
+        uses: actions/cache@v6
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: tf-providers-${{ runner.os }}-${{ hashFiles('.terraform.lock.hcl') }}
+
+      # fmt, init, validate, then the spec tests: this branch's milestone plus
+      # every milestone already merged (regression). Results go to the run summary.
+      - name: Milestone checks
+        env:
+          MILESTONE: ${{ steps.target.outputs.milestone }}
+        run: .github/scripts/check.sh $MILESTONE all
+
+      - uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.64.0
+
+      - name: tflint
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          tflint --init
+          tflint --recursive --config "$(pwd)/.tflint.hcl"

@@ -1,0 +1,5 @@
+# Changes to the test harness need the lead's review.
+/tests/          @umbra-codex
+/scripts/        @umbra-codex
+/milestones.txt  @umbra-codex
+/.github/        @umbra-codex

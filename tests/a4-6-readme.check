@@ -1,0 +1,15 @@
+# A4 step 6: modules/status/README.md documents the module.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/status/README.md | ^# | must start with a title (a line beginning with #)
+modules/status/README.md | ^##+ .*Requirements | needs a "Requirements" section
+modules/status/README.md | ^##+ .*Inputs | needs an "Inputs" section
+modules/status/README.md | ^##+ .*Outputs | needs an "Outputs" section
+modules/status/README.md | ^\| *`?archive`? *\| | needs a Requirements row for the archive provider
+modules/status/README.md | ^\| *`?project_name`? *\| | needs a table row for the project_name input
+modules/status/README.md | ^\| *`?table_name`? *\| | needs a table row for the table_name input
+modules/status/README.md | ^\| *`?table_arn`? *\| | needs a table row for the table_arn input
+modules/status/README.md | ^\| *`?api_id`? *\| | needs a table row for the api_id input
+modules/status/README.md | ^\| *`?api_execution_arn`? *\| | needs a table row for the api_execution_arn input
+modules/status/README.md | ^\| *`?status_role_arn`? *\| | needs a table row for the status_role_arn output
+modules/status/README.md | ^\| *`?status_function_name`? *\| | needs a table row for the status_function_name output
+modules/status/README.md | ^\| *`?status_route_key`? *\| | needs a table row for the status_route_key output

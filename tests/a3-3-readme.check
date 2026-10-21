@@ -1,0 +1,2 @@
+# A3 step 3: the bucket module README documents the reader lock.
+modules/storage/bucket/README.md | ^\| *`?allowed_reader_arn`? *\| | needs a table row for allowed_reader_arn (input and output)
