@@ -226,17 +226,17 @@ run "guardduty_role" {
   }
 }
 
-# The managed-rule ARN must come from the two data sources, not from fixed text:
-# give them other values and the ARN must follow.
-run "managed_rule_arn_follows_region_and_account" {
+# Nothing in the permissions may be fixed text: give the two data sources and
+# the bucket other values and every resource must follow.
+run "permissions_follow_their_inputs" {
   module {
     source = "./modules/scanning"
   }
 
   variables {
     project_name         = "demo"
-    incoming_bucket_name = "demo-incoming-210987654321"
-    incoming_bucket_arn  = "arn:aws:s3:::demo-incoming-210987654321"
+    incoming_bucket_name = "other-bucket"
+    incoming_bucket_arn  = "arn:aws:s3:::other-bucket"
     router_lambda_arn    = "arn:aws:lambda:us-east-1:210987654321:function:demo-router"
     alert_email          = "alerts@example.com"
   }
@@ -262,5 +262,15 @@ run "managed_rule_arn_follows_region_and_account" {
       toset(st.resources) == toset(["arn:aws:events:eu-west-2:999988887777:rule/DO-NOT-DELETE-AmazonGuardDutyMalwareProtectionS3*"])
     ]) == 2
     error_message = "Statements 1 and 2 must build the managed-rule ARN from the region of data.aws_region.current and the account_id of data.aws_caller_identity.current, not from fixed text."
+  }
+
+  assert {
+    condition = length([
+      for st in data.aws_iam_policy_document.permissions.statement : st
+      if(contains(["AllowPostScanTag", "AllowMalwareScan"], st.sid) && toset(st.resources) == toset(["arn:aws:s3:::other-bucket/*"])) ||
+      (contains(["AllowEnableS3EventBridgeEvents", "AllowCheckBucketOwnership"], st.sid) && toset(st.resources) == toset(["arn:aws:s3:::other-bucket"])) ||
+      (st.sid == "AllowPutValidationObject" && toset(st.resources) == toset(["arn:aws:s3:::other-bucket/malware-protection-resource-validation-object"]))
+    ]) == 5
+    error_message = "Statements 3 to 7 must build their resources from the incoming_bucket_arn variable, not from fixed text."
   }
 }

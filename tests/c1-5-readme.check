@@ -1,6 +1,6 @@
 # C1 step 5: modules/scanning/README.md documents the module.
 # Names must appear as the first cell of a table row (| name |), not just anywhere.
-modules/scanning/README.md | ^# | must start with a title (a line beginning with #)
+modules/scanning/README.md | ^# [A-Za-z] | must start with a title: a line beginning with one # and a name (## is a subheading, not a title)
 modules/scanning/README.md | ^##+ .*Requirements | needs a "Requirements" section
 modules/scanning/README.md | ^##+ .*Usage | needs a "Usage" section
 modules/scanning/README.md | ^##+ .*Inputs | needs an "Inputs" section
@@ -8,6 +8,8 @@ modules/scanning/README.md | ^##+ .*Outputs | needs an "Outputs" section
 modules/scanning/README.md | ^\| *`?terraform`? *\| | needs a Requirements row for terraform
 modules/scanning/README.md | ^\| *`?aws`? *\| | needs a Requirements row for the aws provider
 modules/scanning/README.md | module "scanning" | the Usage block must show module "scanning"
+modules/scanning/README.md | source *= *"\./modules/scanning" | the Usage block must set source = "./modules/scanning"
+modules/scanning/README.md | ^[A-Z][A-Za-z0-9 ,.'-]{25,}\.$ | needs a one-sentence description under the title
 modules/scanning/README.md | ^\| *`?project_name`? *\| | needs a table row for the project_name input
 modules/scanning/README.md | ^\| *`?incoming_bucket_name`? *\| | needs a table row for the incoming_bucket_name input
 modules/scanning/README.md | ^\| *`?incoming_bucket_arn`? *\| | needs a table row for the incoming_bucket_arn input
