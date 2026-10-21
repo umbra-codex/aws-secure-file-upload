@@ -111,6 +111,11 @@ run "dlq_alarm" {
   }
 
   assert {
+    condition     = try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.alarm_actions), 0) == 0 && try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.ok_actions), 0) == 0 && try(length(aws_cloudwatch_metric_alarm.dlq_not_empty.insufficient_data_actions), 0) == 0
+    error_message = "aws_cloudwatch_metric_alarm.dlq_not_empty must have no alarm, ok, or insufficient-data actions: the alerts topic's policy lets only the alert rule publish, so an action pointing at it would fail silently."
+  }
+
+  assert {
     condition     = lookup(aws_cloudwatch_metric_alarm.dlq_not_empty.tags, "Name", "") == "demo-scan-dlq-not-empty" && lookup(aws_cloudwatch_metric_alarm.dlq_not_empty.tags, "Role", "") == "observability" && lookup(aws_cloudwatch_metric_alarm.dlq_not_empty.tags, "ManagedBy", "") == "terraform"
     error_message = "aws_cloudwatch_metric_alarm.dlq_not_empty needs tags Name = \"demo-scan-dlq-not-empty\", Role = \"observability\", ManagedBy = \"terraform\" (got ${jsonencode(aws_cloudwatch_metric_alarm.dlq_not_empty.tags)})."
   }
