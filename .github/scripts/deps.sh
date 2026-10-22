@@ -64,6 +64,7 @@ if git rev-parse -q --verify refs/remotes/origin/main >/dev/null 2>&1; then
 fi
 
 missing=(); stale=()
+[ -n "$main_ledger" ] || echo "(origin/main is not fetched here, so this compares with your branch only)"
 echo "Dependencies of $id: ${uniq_deps[*]}"
 for dep in "${uniq_deps[@]}"; do
   if printf '%s\n' "$branch_ledger" | grep -qx "$dep"; then

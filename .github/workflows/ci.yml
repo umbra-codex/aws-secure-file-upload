@@ -58,7 +58,7 @@ jobs:
         env:
           MILESTONE: ${{ steps.target.outputs.milestone }}
         run: |
-          git fetch --no-tags --depth=1 origin main
+          git fetch --no-tags --depth=1 origin '+refs/heads/main:refs/remotes/origin/main'
           .github/scripts/deps.sh "$MILESTONE"
 
       - name: Cache the AWS provider
