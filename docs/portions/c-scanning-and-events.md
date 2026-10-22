@@ -1,6 +1,6 @@
 # Portion C: Scanning and Events
 
-**Owner:** (unassigned) · **Module:** `modules/scanning/` (wired in `scanning.tf`) · **Milestones:** C1, C2, C3
+**Owner:** @rizuanul90 · **Module:** `modules/scanning/` (wired in `scanning.tf`) · **Milestones:** C1, C2, C3
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 

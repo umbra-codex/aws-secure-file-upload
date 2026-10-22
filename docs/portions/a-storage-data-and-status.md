@@ -1,6 +1,6 @@
 # Portion A: Storage, Data, and Status
 
-**Owner:** Umbra · **Modules:** `modules/storage/` (wired in `storage.tf`), its reusable `modules/storage/bucket/` submodule, and `modules/status/` (wired in `status.tf`) · **Milestones:** A1, A2, A3, A4
+**Owner:** @umbra-codex · **Modules:** `modules/storage/` (wired in `storage.tf`), its reusable `modules/storage/bucket/` submodule, and `modules/status/` (wired in `status.tf`) · **Milestones:** A1, A2, A3, A4
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 

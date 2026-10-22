@@ -1,0 +1,42 @@
+name: next
+
+# Keeps one "<ID> is ready" issue per milestone in step with milestones.txt on
+# main: opens it, assigned to the portion owner, when the last dependency merges,
+# and closes it when the milestone itself merges. Runs on every push to main and
+# every six hours, and it repairs anything an earlier run missed, so a cancelled
+# run or an owner who accepted the invitation late loses nothing.
+# By hand: Actions, next, "Run workflow" (from any branch; it always reads main).
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: next
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    # gh has no request timeout of its own; a stalled call would otherwise hold
+    # this job (and, through the concurrency group, every later repair) for the
+    # runner's six-hour default. The reconciler makes a retry free.
+    timeout-minutes: 5
+    steps:
+      # Always main: a manual run from another branch would otherwise read that
+      # branch's ledger and briefs against the real repository's issues.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Open and close the "ready" issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: .github/scripts/notify.sh
