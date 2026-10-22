@@ -22,6 +22,9 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # A hung terraform or tflint download must not hold the required check for
+    # the runner's six-hour default.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -49,16 +52,37 @@ jobs:
           fi
           m=$(printf '%s' "$m" | tr '[:lower:]' '[:upper:]')
           echo "milestone=$m" >> "$GITHUB_OUTPUT"
+          # The gate runs only for a milestone that has a brief. "all" (which
+          # check.sh treats as the whole ledger) and a typo have no brief, so
+          # they go to the milestone checks and skip the gate instead of
+          # failing it with "does not exist".
+          gate=""
+          if printf '%s' "$m" | grep -Eq '^(INT|[A-D][0-9])$'; then gate=yes; fi
+          echo "gate=$gate" >> "$GITHUB_OUTPUT"
           echo "Checking ${m:-no branch milestone} plus everything in milestones.txt"
 
       # A milestone whose dependencies are not merged fails here, before the
       # spec tests, because the tests are mocked and would pass without them.
       - name: Dependencies are merged
-        if: steps.target.outputs.milestone != '' && steps.target.outputs.milestone != 'M0'
+        if: steps.target.outputs.gate == 'yes'
         env:
           MILESTONE: ${{ steps.target.outputs.milestone }}
         run: |
-          git fetch --no-tags --depth=1 origin '+refs/heads/main:refs/remotes/origin/main'
+          # A ref the branch's clone does not track (a single-branch checkout)
+          # needs the destination spelled out; `git fetch origin main` would
+          # silently create nothing there.
+          fetched=""
+          for attempt in 1 2; do
+            if git fetch --no-tags --depth=1 origin '+refs/heads/main:refs/remotes/origin/main'; then
+              fetched=yes
+              break
+            fi
+            echo "::warning::could not fetch origin/main (attempt $attempt of 2)"
+          done
+          if [ -z "$fetched" ]; then
+            echo "::error::could not fetch origin/main (network or permissions), so a merged dependency cannot be told from a missing one. Re-run this job; do not read this as a dependency failure."
+            exit 1
+          fi
           .github/scripts/deps.sh "$MILESTONE"
 
       - name: Cache the AWS provider

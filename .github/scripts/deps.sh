@@ -6,6 +6,8 @@
 #   .github/scripts/deps.sh --list B1      print the dependency IDs, one per line
 #
 # The dependencies are the IDs in the "Depends on" row of docs/milestones/<ID>.md.
+# That row is the contract this gate enforces: docs/milestones/ is code-owned
+# (CODEOWNERS), so changing a row needs the lead's review like any other rule.
 # A dependency is merged when its ID is on its own line in milestones.txt. The list
 # on your branch is main's list as of your last pull, so when origin/main is
 # available (CI fetches it) the report also says "merged on main, not in your
@@ -29,11 +31,13 @@ brief="docs/milestones/$id.md"
 row=$(grep -m1 -E '^\| \*\*Depends on\*\* \|' "$brief" || true)
 [ -n "$row" ] || { echo "❌ $brief has no 'Depends on' row"; exit 3; }
 row=$(printf '%s' "$row" | sed -E 's/^\| \*\*Depends on\*\* \| *//; s/ *\|$//')
+# Work in capitals, so "A1 to A4" and "A1 TO A4" are the same range.
+row=$(printf '%s' "$row" | tr '[:lower:]' '[:upper:]')
 
 # Expand ranges such as "A1 to A4" (same letter only), then pick up the single IDs.
 deps=()
 rest=$row
-while [[ $rest =~ ([A-D])([0-9])\ to\ ([A-D])([0-9]) ]]; do
+while [[ $rest =~ ([A-D])([0-9])\ TO\ ([A-D])([0-9]) ]]; do
   letter=${BASH_REMATCH[1]}; from=${BASH_REMATCH[2]}; end_letter=${BASH_REMATCH[3]}; to=${BASH_REMATCH[4]}
   if [ "$letter" != "$end_letter" ] || [ "$from" -gt "$to" ]; then
     echo "❌ $brief: the range ${BASH_REMATCH[0]} must stay within one letter and count upward"; exit 3
@@ -42,7 +46,7 @@ while [[ $rest =~ ([A-D])([0-9])\ to\ ([A-D])([0-9]) ]]; do
   rest=${rest/"${BASH_REMATCH[0]}"/ }
 done
 # Refuse any other way of writing a range, so a brief edit cannot silently drop dependencies.
-if printf '%s' "$rest" | grep -Eq '[A-D][0-9][[:space:]]*(-|–|—|\.\.|through|to)[[:space:]]*[A-D][0-9]'; then
+if printf '%s' "$rest" | grep -Eq $'[A-D][0-9][[:space:]]*(-|\u2013|\u2014|\\.\\.|THROUGH|TO)[[:space:]]*[A-D][0-9]'; then
   echo "❌ $brief: a range in the Depends on row is not written as 'A1 to A4'"; exit 3
 fi
 for token in $(printf '%s' "$rest" | grep -oE '\b([A-D][0-9]|M0)\b' || true); do deps+=("$token"); done
