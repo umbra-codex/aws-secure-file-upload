@@ -110,12 +110,12 @@ flowchart TD
 
 | Portion | Owner | Builds | Milestones |
 |---|---|---|---|
-| [A: Storage, Data, and Status](portions/a-storage-data-and-status.md) | Umbra | S3 buckets, DynamoDB, bucket policies, status endpoint | A1-A4 |
-| [B: Upload API and Observability](portions/b-upload-api-and-observability.md) | TBD | API Gateway, Lambda 1, dashboard, alarms | B1-B3 |
-| [C: Scanning and Events](portions/c-scanning-and-events.md) | TBD | GuardDuty, EventBridge, failure queue, alerts | C1-C3 |
-| [D: Processing](portions/d-processing.md) | TBD | Lambda 2, failure queue, redrive | D1-D4 |
+| [A: Storage, Data, and Status](portions/a-storage-data-and-status.md) | Sean (@umbra-codex) | S3 buckets, DynamoDB, bucket policies, status endpoint | A1-A4 |
+| [B: Upload API and Observability](portions/b-upload-api-and-observability.md) | Bright (@Bright-Daniels13) | API Gateway, Lambda 1, dashboard, alarms | B1-B3 |
+| [C: Scanning and Events](portions/c-scanning-and-events.md) | Rizuanul (@rizuanul90) | GuardDuty, EventBridge, failure queue, alerts | C1-C3 |
+| [D: Processing](portions/d-processing.md) | Baltazar (@blaborte) | Lambda 2, failure queue, redrive | D1-D4 |
 
-Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. Every brief exists today: M0, A1 to A4, B1 to B3, C1 to C3, D1 to D4, and INT. Umbra is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test.
+Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. Every brief exists today: M0, A1 to A4, B1 to B3, C1 to C3, D1 to D4, and INT. Sean is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test.
 
 **Schedule** (merge in this order within each week):
 
@@ -157,7 +157,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 - **What it checks:** formatting, `init`, `validate`, then the milestone's spec tests one file at a time (so you see your progress step by step), then every milestone already listed in `milestones.txt` (so nobody can break merged work), then `tflint` with the AWS ruleset. One tflint rule, `terraform_unused_declarations`, is off until INT, because modules declare inputs before the milestone that uses them.
 - **How:** Terraform's built-in `terraform test` with a **mocked AWS provider**. It needs no AWS account and costs nothing. It proves the code matches the spec; "Done when" proves it works in real AWS.
 - **Where results live:** on GitHub only, under **Actions** and on the pull request. Nothing runs on or is saved to your machine.
-- **Protected:** `main` requires a pull request, a passing check, and one approval. The tests and the check itself (`tests/`, `scripts/`, `.github/`, `milestones.txt`, `docs/milestones/`) need Umbra's approval to change.
+- **Protected:** `main` requires a pull request, a passing check, and one approval. The tests and the check itself (`tests/`, `scripts/`, `.github/`, `milestones.txt`, `docs/milestones/`) need Sean's approval to change.
 
 ## Deploying into your own account
 
@@ -201,7 +201,7 @@ Every portion builds against these. Change one only with the whole team.
 | `created_at` | ISO 8601 time | Lambda 1 |
 | `expires_at` | a **Number**, Unix seconds: now + 15 minutes + 1 hour (TTL ignores strings). Removed by Lambda 2 when it sets the final status. | Lambda 1 sets it; Lambda 2 removes it |
 
-**Decided (Umbra, 2026-10-21):** finished uploads stay queryable. Lambda 2 removes `expires_at` in the same update that sets `APPROVED` or `QUARANTINED`, so DynamoDB TTL only deletes uploads that never finished. A `PENDING` row past its `expires_at` reads as `EXPIRED` until TTL removes it, then `404`.
+**Decided (Sean, 2026-10-21):** finished uploads stay queryable. Lambda 2 removes `expires_at` in the same update that sets `APPROVED` or `QUARANTINED`, so DynamoDB TTL only deletes uploads that never finished. A `PENDING` row past its `expires_at` reads as `EXPIRED` until TTL removes it, then `404`.
 
 **Module interface:**
 

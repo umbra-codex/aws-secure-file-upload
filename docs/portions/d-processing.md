@@ -1,6 +1,6 @@
 # Portion D: Processing
 
-**Owner:** @blaborte · **Module:** `modules/processing/` (wired in `processing.tf`) · **Code:** `modules/processing/src/`, `scripts/redrive.sh` · **Milestones:** D1, D2, D3, D4
+**Owner:** Baltazar (@blaborte) · **Module:** `modules/processing/` (wired in `processing.tf`) · **Code:** `modules/processing/src/`, `scripts/redrive.sh` · **Milestones:** D1, D2, D3, D4
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 
@@ -39,7 +39,7 @@ Every outcome except one goes to Quarantine. Your own checks can only demote a c
 - **Copy by version.** Use the event's `versionId` in `CopySource`, and delete that same version from Incoming. Otherwise a client who overwrites the key after the scan sneaks unscanned bytes into Approved.
 - **Order: copy, then update DynamoDB, then delete.** A crash after the copy leaves a `PENDING` row that a retry finishes. A crash after the update leaves a finished row and a leftover scanned version, which a retry deletes (see the next rules). Deleting before updating would be worse: a crash between them leaves a `PENDING` row whose version is gone, and the retry would mark a good file `STALE`.
 - **Conditional update.** Write the result with the condition `attribute_exists(upload_id) AND #s = :pending`. A replayed event then changes nothing, and it can't recreate a deleted row.
-- **Keep finished rows.** The same update also removes `expires_at` (`REMOVE expires_at`), so DynamoDB's TTL only deletes uploads that never finished and `GET /status` keeps answering for finished ones. (Umbra's decision, 2026-10-21.)
+- **Keep finished rows.** The same update also removes `expires_at` (`REMOVE expires_at`), so DynamoDB's TTL only deletes uploads that never finished and `GET /status` keeps answering for finished ones. (Sean's decision, 2026-10-21.)
 - **Row not `PENDING`** (a replay, or a second event for the same upload): delete the scanned version, copy nothing, and return success. A replay never overwrites an approved file.
 - **Version already gone:** set `QUARANTINED` with reason `STALE` (and no `destination_bucket`, since nothing was copied) and return success. Don't retry it. S3 reports a missing version as `NoSuchVersion` or `NoSuchKey`, and a HEAD request as plain `404`; any other error code is a real problem and is raised.
 - **No matching row** (a console upload, a leftover object): log it and return success. Raising an error would just retry it into the failure queue.
