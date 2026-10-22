@@ -1,0 +1,7 @@
+# D3 step 2: modules/processing/src/handler.py, the size check.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/processing/src/handler.py | MAX_SIZE_MB | must read the size limit from the MAX_SIZE_MB environment variable
+modules/processing/src/handler.py | 1024 *\* *1024 | must turn megabytes into bytes: * 1024 * 1024
+modules/processing/src/handler.py | head_object | must measure the file with head_object, not by trusting the row
+modules/processing/src/handler.py | ContentLength | must read the real size from ContentLength
+modules/processing/src/handler.py | TOO_LARGE | must quarantine an oversized file with reason TOO_LARGE

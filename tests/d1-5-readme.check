@@ -1,0 +1,22 @@
+# D1 step 5: modules/processing/README.md documents the module.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/processing/README.md | ^# [^#[:space:]] | must start with a title: one # and a space, then the name (## is a subheading, not a title)
+modules/processing/README.md | ^##+ .*Requirements | needs a "Requirements" section
+modules/processing/README.md | ^##+ .*Inputs | needs an "Inputs" section
+modules/processing/README.md | ^##+ .*Outputs | needs an "Outputs" section
+modules/processing/README.md | source *= *["']\./modules/processing["'] | the Usage block must call the module with source = "./modules/processing"
+modules/processing/README.md | ^\| *`?archive`? *\| | needs a Requirements row for the archive provider
+modules/processing/README.md | ^\| *`?project_name`? *\| | needs a table row for the project_name input
+modules/processing/README.md | ^\| *`?incoming_bucket_name`? *\| | needs a table row for the incoming_bucket_name input
+modules/processing/README.md | ^\| *`?incoming_bucket_arn`? *\| | needs a table row for the incoming_bucket_arn input
+modules/processing/README.md | ^\| *`?approved_bucket_name`? *\| | needs a table row for the approved_bucket_name input
+modules/processing/README.md | ^\| *`?approved_bucket_arn`? *\| | needs a table row for the approved_bucket_arn input
+modules/processing/README.md | ^\| *`?quarantine_bucket_name`? *\| | needs a table row for the quarantine_bucket_name input
+modules/processing/README.md | ^\| *`?quarantine_bucket_arn`? *\| | needs a table row for the quarantine_bucket_arn input
+modules/processing/README.md | ^\| *`?table_name`? *\| | needs a table row for the table_name input
+modules/processing/README.md | ^\| *`?table_arn`? *\| | needs a table row for the table_arn input
+modules/processing/README.md | ^\| *`?allowed_types`? *\| | needs a table row for the allowed_types input
+modules/processing/README.md | ^\| *`?max_size_mb`? *\| | needs a table row for the max_size_mb input
+modules/processing/README.md | ^\| *`?router_lambda_arn`? *\| | needs a table row for the router_lambda_arn output
+modules/processing/README.md | ^\| *`?router_function_name`? *\| | needs a table row for the router_function_name output
+modules/processing/README.md | ^\| *`?router_role_arn`? *\| | needs a table row for the router_role_arn output

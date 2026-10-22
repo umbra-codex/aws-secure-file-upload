@@ -1,0 +1,32 @@
+# D2 step 1: modules/processing/src/handler.py, the routing.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/processing/src/handler.py | ^def handler\(event, context\): | must keep the entry point: def handler(event, context):
+modules/processing/src/handler.py | TABLE_NAME | must read the table name from the TABLE_NAME environment variable
+modules/processing/src/handler.py | INCOMING_BUCKET | must read the Incoming bucket from the INCOMING_BUCKET environment variable
+modules/processing/src/handler.py | APPROVED_BUCKET | must read the Approved bucket from the APPROVED_BUCKET environment variable
+modules/processing/src/handler.py | QUARANTINE_BUCKET | must read the Quarantine bucket from the QUARANTINE_BUCKET environment variable
+modules/processing/src/handler.py | s3ObjectDetails | must read the file's details from detail.s3ObjectDetails
+modules/processing/src/handler.py | objectKey | must read the key from objectKey
+modules/processing/src/handler.py | versionId | must read the scanned version from versionId
+modules/processing/src/handler.py | scanResultStatus | must read the verdict from detail.scanResultDetails.scanResultStatus
+modules/processing/src/handler.py | get_item | must read the upload's row with get_item
+modules/processing/src/handler.py | ["']filename["'] | must rebuild the key from the row's filename
+modules/processing/src/handler.py | f["']uploads/\{upload_id\}/ | must build the key as an f-string starting uploads/{upload_id}/
+modules/processing/src/handler.py | NO_THREATS_FOUND | must send only NO_THREATS_FOUND to Approved
+modules/processing/src/handler.py | copy_object | must move the file with copy_object, not download and upload
+modules/processing/src/handler.py | ["']VersionId["'] *: | CopySource must carry the scanned version: a dictionary with a "VersionId" key
+modules/processing/src/handler.py | VersionId *= | must delete the scanned version: pass VersionId=... to delete_object
+modules/processing/src/handler.py | delete_object | must delete the scanned version from Incoming with delete_object
+modules/processing/src/handler.py | update_item | must write the outcome with update_item
+modules/processing/src/handler.py | ConditionExpression | must make the update conditional with a ConditionExpression
+modules/processing/src/handler.py | attribute_exists\(upload_id\) | the condition must include attribute_exists(upload_id)
+modules/processing/src/handler.py | #s *= *:pending | the condition must include #s = :pending
+modules/processing/src/handler.py | ["']#s["'] *: *["']status["'] | must map #s to status in ExpressionAttributeNames: {"#s": "status"}
+modules/processing/src/handler.py | :pending["']? *: *["']PENDING["'] | must give :pending the value "PENDING" in ExpressionAttributeValues
+modules/processing/src/handler.py | REMOVE expires_at | the update must also REMOVE expires_at
+modules/processing/src/handler.py | APPROVED | must write status APPROVED
+modules/processing/src/handler.py | QUARANTINED | must write status QUARANTINED
+modules/processing/src/handler.py | scanned_version_id | must record the scanned version in scanned_version_id
+modules/processing/src/handler.py | destination_bucket | must record the destination in destination_bucket
+modules/processing/src/handler.py | reason | must record the reason a file was quarantined
+modules/processing/src/handler.py | extra=\{ *["']upload_id["'] *: | must log upload_id as a structured field: extra={"upload_id": upload_id, ...}

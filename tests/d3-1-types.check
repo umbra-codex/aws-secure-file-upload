@@ -1,0 +1,15 @@
+# D3 step 1: modules/processing/src/handler.py, the type check.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/processing/src/handler.py | ALLOWED_TYPES | must read the allowed types from the ALLOWED_TYPES environment variable
+modules/processing/src/handler.py | get_object | must read the file's first bytes with get_object
+modules/processing/src/handler.py | bytes=0-15 | must read only the first 16 bytes: Range="bytes=0-15"
+modules/processing/src/handler.py | \\x89PNG | needs the PNG signature b"\x89PNG"
+modules/processing/src/handler.py | \\xff\\xd8\\xff | needs the JPEG signature b"\xff\xd8\xff"
+modules/processing/src/handler.py | %PDF | needs the PDF signature b"%PDF"
+modules/processing/src/handler.py | PK\\x03\\x04 | needs the ZIP signature b"PK\x03\x04"
+modules/processing/src/handler.py | b["']\\x89PNG["'] *[,:] *["']image/png["'] | must map the PNG signature to image/png
+modules/processing/src/handler.py | b["']\\xff\\xd8\\xff["'] *[,:] *["']image/jpeg["'] | must map the JPEG signature to image/jpeg
+modules/processing/src/handler.py | b["']%PDF["'] *[,:] *["']application/pdf["'] | must map the PDF signature to application/pdf
+modules/processing/src/handler.py | b["']PK\\x03\\x04["'] *[,:] *["']application/zip["'] | must map the ZIP signature to application/zip
+modules/processing/src/handler.py | INVALID_TYPE | must quarantine a file whose real type is not allowed with reason INVALID_TYPE
+modules/processing/src/handler.py | startswith | must compare the signature against the start of the file (startswith)
