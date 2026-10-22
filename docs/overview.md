@@ -151,6 +151,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 ## The GitHub Actions check
 
 - **When it runs:** on every push to any branch. To re-run without pushing: `scripts/remote-check.sh`, which prints "N of N steps done" and what to fix next.
+- **Dependencies:** before the spec tests, CI reads the "Depends on" row of your brief and fails if any dependency is not in `milestones.txt` yet. It names the missing ID and the fix (`git merge main` once it is merged). The spec tests are mocked, so they would pass without the dependency; this step is what stops an early start from reaching review.
 - **What it checks:** formatting, `init`, `validate`, then the milestone's spec tests one file at a time (so you see your progress step by step), then every milestone already listed in `milestones.txt` (so nobody can break merged work), then `tflint` with the AWS ruleset. One tflint rule, `terraform_unused_declarations`, is off until INT, because modules declare inputs before the milestone that uses them.
 - **How:** Terraform's built-in `terraform test` with a **mocked AWS provider**. It needs no AWS account and costs nothing. It proves the code matches the spec; "Done when" proves it works in real AWS.
 - **Where results live:** on GitHub only, under **Actions** and on the pull request. Nothing runs on or is saved to your machine.
