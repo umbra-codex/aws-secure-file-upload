@@ -2,6 +2,8 @@
 # Fails when a milestone's dependencies are not merged yet.
 #
 #   .github/scripts/deps.sh B1
+#   .github/scripts/deps.sh --quiet B1    exit status only, no output
+#   .github/scripts/deps.sh --list B1     print the dependency IDs, one per line
 #
 # The dependencies are the IDs in the "Depends on" row of docs/milestones/<ID>.md.
 # A dependency counts as merged when its ID is on its own line in milestones.txt:
@@ -10,6 +12,10 @@
 # be listed without the milestone being built.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
+
+mode=check
+case "${1:-}" in --quiet) mode=quiet; shift ;; --list) mode=list; shift ;; esac
+[ "$mode" != quiet ] || { exec >/dev/null 2>&1; GITHUB_STEP_SUMMARY=; }
 
 id=$(printf '%s' "${1:-}" | tr '[:lower:]' '[:upper:]')
 [ -n "$id" ] || { echo "Usage: .github/scripts/deps.sh <milestone>   e.g. .github/scripts/deps.sh B1"; exit 2; }
@@ -31,6 +37,7 @@ done
 for token in $(printf '%s' "$rest" | grep -oE '\b([A-D][0-9]|M0)\b' || true); do deps+=("$token"); done
 if [ "${#deps[@]}" -eq 0 ]; then echo "❌ no milestone IDs found in the Depends on row of $brief: $row"; exit 1; fi
 
+if [ "$mode" = list ]; then printf "%s\n" "${deps[@]}" | awk "!s[\$0]++"; exit 0; fi
 listed=$(grep -Ev '^[[:space:]]*(#|$)' milestones.txt | tr -d ' \r')
 missing=()
 seen=" "

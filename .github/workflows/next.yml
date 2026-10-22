@@ -1,0 +1,62 @@
+name: next
+
+# When a milestone merges into main, open an issue for the owner of every
+# milestone that has just become ready, and close the merged milestone's issue.
+# Kick-off, to announce A1 once: Actions, next, "Run workflow", merged = M0.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      merged:
+        description: "Milestone IDs to treat as just merged, e.g. M0 (announces A1). Leave blank to use the last push."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: next
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Inputs arrive through env vars, never pasted into the script, and every
+      # ID is checked against a strict pattern before it is used.
+      - name: Work out which milestones just merged
+        id: merged
+        env:
+          INPUT_MERGED: ${{ inputs.merged }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          ids=""
+          if [ -n "$INPUT_MERGED" ]; then
+            ids=$INPUT_MERGED
+          elif printf '%s' "$BEFORE" | grep -Eq '^[0-9a-f]{40}$' && ! printf '%s' "$BEFORE" | grep -Eq '^0{40}$'; then
+            list() { grep -Ev '^[[:space:]]*(#|$)' | tr -d ' \r' | sort -u; }
+            old=$(git show "$BEFORE:milestones.txt" 2>/dev/null | list || true)
+            new=$(list < milestones.txt)
+            ids=$(comm -13 <(printf '%s\n' "$old") <(printf '%s\n' "$new") | tr '\n' ' ')
+          fi
+          clean=""
+          for id in $ids; do
+            printf '%s' "$id" | grep -Eq '^(M0|[A-Da-d][0-9]|INT|int)$' && clean="$clean $(printf '%s' "$id" | tr '[:lower:]' '[:upper:]')"
+          done
+          echo "ids=${clean# }" >> "$GITHUB_OUTPUT"
+          echo "Just merged: ${clean:-nothing}"
+
+      - name: Tell the owners
+        if: steps.merged.outputs.ids != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          IDS: ${{ steps.merged.outputs.ids }}
+        run: .github/scripts/notify.sh $IDS
