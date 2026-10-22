@@ -50,6 +50,14 @@ jobs:
           echo "milestone=$m" >> "$GITHUB_OUTPUT"
           echo "Checking ${m:-no branch milestone} plus everything in milestones.txt"
 
+      # A milestone whose dependencies are not merged fails here, before the
+      # spec tests, because the tests are mocked and would pass without them.
+      - name: Dependencies are merged
+        if: steps.target.outputs.milestone != '' && steps.target.outputs.milestone != 'M0'
+        env:
+          MILESTONE: ${{ steps.target.outputs.milestone }}
+        run: .github/scripts/deps.sh "$MILESTONE"
+
       - name: Cache the AWS provider
         uses: actions/cache@v6
         with:
