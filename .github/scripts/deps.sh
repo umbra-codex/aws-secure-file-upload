@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Fails when a milestone's dependencies are not merged yet.
+# Checks that a milestone's dependencies are merged.
 #
-#   .github/scripts/deps.sh B1
-#   .github/scripts/deps.sh --quiet B1    exit status only, no output
-#   .github/scripts/deps.sh --list B1     print the dependency IDs, one per line
+#   .github/scripts/deps.sh B1             check, with a readable report
+#   .github/scripts/deps.sh --quiet B1     exit status only, no output
+#   .github/scripts/deps.sh --list B1      print the dependency IDs, one per line
 #
 # The dependencies are the IDs in the "Depends on" row of docs/milestones/<ID>.md.
-# A dependency counts as merged when its ID is on its own line in milestones.txt:
-# every milestone's PR adds its own ID, so the list on your branch is main's list
-# as of your last pull. check.sh then runs every listed milestone, so an ID cannot
-# be listed without the milestone being built.
+# A dependency is merged when its ID is on its own line in milestones.txt. The list
+# on your branch is main's list as of your last pull, so when origin/main is
+# available (CI fetches it) the report also says "merged on main, not in your
+# branch yet" instead of "not merged yet".
+#
+# Exit status: 0 all merged, 1 a dependency is not merged, 2 usage, 3 the brief
+# cannot be read (missing file, no Depends on row, or a range this script does not
+# understand).
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 
@@ -18,35 +22,55 @@ case "${1:-}" in --quiet) mode=quiet; shift ;; --list) mode=list; shift ;; esac
 [ "$mode" != quiet ] || { exec >/dev/null 2>&1; GITHUB_STEP_SUMMARY=; }
 
 id=$(printf '%s' "${1:-}" | tr '[:lower:]' '[:upper:]')
-[ -n "$id" ] || { echo "Usage: .github/scripts/deps.sh <milestone>   e.g. .github/scripts/deps.sh B1"; exit 2; }
+[ -n "$id" ] || { echo "Usage: .github/scripts/deps.sh [--quiet|--list] <milestone>   e.g. .github/scripts/deps.sh B1"; exit 2; }
 brief="docs/milestones/$id.md"
-[ -f "$brief" ] || { echo "❌ $brief does not exist"; exit 1; }
+[ -f "$brief" ] || { echo "❌ $brief does not exist"; exit 3; }
 
 row=$(grep -m1 -E '^\| \*\*Depends on\*\* \|' "$brief" || true)
-[ -n "$row" ] || { echo "❌ $brief has no 'Depends on' row"; exit 1; }
+[ -n "$row" ] || { echo "❌ $brief has no 'Depends on' row"; exit 3; }
 row=$(printf '%s' "$row" | sed -E 's/^\| \*\*Depends on\*\* \| *//; s/ *\|$//')
 
-# Expand ranges such as "A1 to A4", then pick up the single IDs.
+# Expand ranges such as "A1 to A4" (same letter only), then pick up the single IDs.
 deps=()
 rest=$row
 while [[ $rest =~ ([A-D])([0-9])\ to\ ([A-D])([0-9]) ]]; do
-  letter=${BASH_REMATCH[1]}; from=${BASH_REMATCH[2]}; to=${BASH_REMATCH[4]}
+  letter=${BASH_REMATCH[1]}; from=${BASH_REMATCH[2]}; end_letter=${BASH_REMATCH[3]}; to=${BASH_REMATCH[4]}
+  if [ "$letter" != "$end_letter" ] || [ "$from" -gt "$to" ]; then
+    echo "❌ $brief: the range ${BASH_REMATCH[0]} must stay within one letter and count upward"; exit 3
+  fi
   for ((n = from; n <= to; n++)); do deps+=("$letter$n"); done
   rest=${rest/"${BASH_REMATCH[0]}"/ }
 done
+# Refuse any other way of writing a range, so a brief edit cannot silently drop dependencies.
+if printf '%s' "$rest" | grep -Eq '[A-D][0-9][[:space:]]*(-|–|—|\.\.|through|to)[[:space:]]*[A-D][0-9]'; then
+  echo "❌ $brief: a range in the Depends on row is not written as 'A1 to A4'"; exit 3
+fi
 for token in $(printf '%s' "$rest" | grep -oE '\b([A-D][0-9]|M0)\b' || true); do deps+=("$token"); done
-if [ "${#deps[@]}" -eq 0 ]; then echo "❌ no milestone IDs found in the Depends on row of $brief: $row"; exit 1; fi
+[ "${#deps[@]}" -gt 0 ] || { echo "❌ no milestone IDs found in the Depends on row of $brief"; exit 3; }
 
-if [ "$mode" = list ]; then printf "%s\n" "${deps[@]}" | awk "!s[\$0]++"; exit 0; fi
-listed=$(grep -Ev '^[[:space:]]*(#|$)' milestones.txt | tr -d ' \r')
-missing=()
-seen=" "
-echo "Dependencies of $id: $row"
+# De-duplicate, keeping order.
+uniq_deps=(); seen=" "
 for dep in "${deps[@]}"; do
   case "$seen" in *" $dep "*) continue ;; esac
-  seen="$seen$dep "
-  if printf '%s\n' "$listed" | grep -qx "$dep"; then
+  seen="$seen$dep "; uniq_deps+=("$dep")
+done
+if [ "$mode" = list ]; then printf '%s\n' "${uniq_deps[@]}"; exit 0; fi
+
+ids_of() { grep -Ev '^[[:space:]]*(#|$)' | tr -d ' \r'; }
+branch_ledger=$(ids_of < milestones.txt)
+main_ledger=""
+if git rev-parse -q --verify refs/remotes/origin/main >/dev/null 2>&1; then
+  main_ledger=$(git show origin/main:milestones.txt 2>/dev/null | ids_of || true)
+fi
+
+missing=(); stale=()
+echo "Dependencies of $id: ${uniq_deps[*]}"
+for dep in "${uniq_deps[@]}"; do
+  if printf '%s\n' "$branch_ledger" | grep -qx "$dep"; then
     echo "  ✅ $dep"
+  elif [ -n "$main_ledger" ] && printf '%s\n' "$main_ledger" | grep -qx "$dep"; then
+    echo "  ❌ $dep is merged on main, but not in your branch yet"
+    stale+=("$dep")
   else
     echo "  ❌ $dep is not merged yet"
     missing+=("$dep")
@@ -57,15 +81,18 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   {
     echo "## Dependencies of $id"
     echo
-    if [ "${#missing[@]}" -eq 0 ]; then echo "**👍 All merged:** ${seen}"; else echo "**👎 Not merged yet:** ${missing[*]}"; fi
+    if [ "${#missing[@]}${#stale[@]}" = "00" ]; then echo "**👍 All merged:** ${uniq_deps[*]}"
+    else echo "**👎 Waiting on:** ${missing[*]} ${stale[*]}"; fi
   } >> "$GITHUB_STEP_SUMMARY"
 fi
 
+if [ "${#stale[@]}" -gt 0 ]; then
+  echo
+  echo "❌ ${stale[*]} is merged on main but not in your branch. Run: git fetch origin && git merge origin/main"
+fi
 if [ "${#missing[@]}" -gt 0 ]; then
   echo
-  echo "❌ $id needs ${missing[*]} merged into main first."
-  echo "   When it is: git checkout main && git pull, then git checkout <your branch> && git merge main."
-  echo "   Until then, build a milestone whose dependencies are all merged (see the schedule in docs/overview.md)."
-  exit 1
+  echo "❌ $id needs ${missing[*]} merged into main first. Build a milestone whose dependencies are all merged (see the schedule in docs/overview.md), or wait for the \"is ready\" issue that names you."
 fi
+[ "${#stale[@]}${#missing[@]}" = "00" ] || exit 1
 echo "👍 Every dependency of $id is merged."

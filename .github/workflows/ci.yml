@@ -47,6 +47,7 @@ jobs:
           if [ -z "$m" ]; then
             m=$(printf '%s' "$BRANCH" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')
           fi
+          m=$(printf '%s' "$m" | tr '[:lower:]' '[:upper:]')
           echo "milestone=$m" >> "$GITHUB_OUTPUT"
           echo "Checking ${m:-no branch milestone} plus everything in milestones.txt"
 
@@ -56,7 +57,9 @@ jobs:
         if: steps.target.outputs.milestone != '' && steps.target.outputs.milestone != 'M0'
         env:
           MILESTONE: ${{ steps.target.outputs.milestone }}
-        run: .github/scripts/deps.sh "$MILESTONE"
+        run: |
+          git fetch --no-tags --depth=1 origin main
+          .github/scripts/deps.sh "$MILESTONE"
 
       - name: Cache the AWS provider
         uses: actions/cache@v6
@@ -69,6 +72,8 @@ jobs:
       - name: Milestone checks
         env:
           MILESTONE: ${{ steps.target.outputs.milestone }}
+        # $MILESTONE is unquoted on purpose: when blank it must drop out of the
+        # argument list, not become an empty first argument.
         run: .github/scripts/check.sh $MILESTONE all
 
       - uses: terraform-linters/setup-tflint@v6
