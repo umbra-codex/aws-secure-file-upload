@@ -1,6 +1,6 @@
 # Portion D: Processing
 
-**Owner:** @blaborte · **Module:** `modules/processing/` (wired in `processing.tf`) · **Code:** `modules/processing/src/`, `scripts/redrive.sh` · **Milestones:** D1, D2, D3, D4
+**Owner:** Baltazar (@blaborte) · **Module:** `modules/processing/` (wired in `processing.tf`) · **Code:** `modules/processing/src/`, `scripts/redrive.sh` · **Milestones:** D1, D2, D3, D4
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 

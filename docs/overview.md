@@ -110,10 +110,10 @@ flowchart TD
 
 | Portion | Owner | Builds | Milestones |
 |---|---|---|---|
-| [A: Storage, Data, and Status](portions/a-storage-data-and-status.md) | Umbra | S3 buckets, DynamoDB, bucket policies, status endpoint | A1-A4 |
-| [B: Upload API and Observability](portions/b-upload-api-and-observability.md) | TBD | API Gateway, Lambda 1, dashboard, alarms | B1-B3 |
-| [C: Scanning and Events](portions/c-scanning-and-events.md) | TBD | GuardDuty, EventBridge, failure queue, alerts | C1-C3 |
-| [D: Processing](portions/d-processing.md) | TBD | Lambda 2, failure queue, redrive | D1-D4 |
+| [A: Storage, Data, and Status](portions/a-storage-data-and-status.md) | Umbra (@umbra-codex) | S3 buckets, DynamoDB, bucket policies, status endpoint | A1-A4 |
+| [B: Upload API and Observability](portions/b-upload-api-and-observability.md) | Bright (@Bright-Daniels13) | API Gateway, Lambda 1, dashboard, alarms | B1-B3 |
+| [C: Scanning and Events](portions/c-scanning-and-events.md) | Rizuanul (@rizuanul90) | GuardDuty, EventBridge, failure queue, alerts | C1-C3 |
+| [D: Processing](portions/d-processing.md) | Baltazar (@blaborte) | Lambda 2, failure queue, redrive | D1-D4 |
 
 Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. Every brief exists today: M0, A1 to A4, B1 to B3, C1 to C3, D1 to D4, and INT. Umbra is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test.
 
