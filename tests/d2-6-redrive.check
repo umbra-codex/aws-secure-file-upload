@@ -1,0 +1,12 @@
+# D2 step 6: scripts/redrive.sh replays the failure queue.
+# Format: file | regular expression the file must contain | message if it doesn't
+scripts/redrive.sh | ^#! *\/ | must start with a shebang line, e.g. #!/usr/bin/env bash
+scripts/redrive.sh | ^set -[a-zA-Z]*e | must stop at the first error: set -e (or set -euo pipefail)
+scripts/redrive.sh | router_failures_queue_url | must read the queue URL from the router_failures_queue_url Terraform output
+scripts/redrive.sh | router_function_name | must read the function name from the router_function_name Terraform output
+scripts/redrive.sh | receive-message | must read the queue with aws sqs receive-message
+scripts/redrive.sh | Messages | must stop when the response has no Messages: jq -e '.Messages | length > 0'
+scripts/redrive.sh | requestPayload | must replay the failure record's requestPayload, not the whole message
+scripts/redrive.sh | lambda invoke | must re-invoke the function with aws lambda invoke
+scripts/redrive.sh | FunctionError | must check the invoke's FunctionError, so a failed replay is not deleted
+scripts/redrive.sh | delete-message | must delete a message once its replay succeeded: aws sqs delete-message

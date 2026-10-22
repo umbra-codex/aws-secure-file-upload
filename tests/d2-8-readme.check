@@ -1,0 +1,4 @@
+# D2 step 8: modules/processing/README.md documents the new outputs.
+# Names must appear as the first cell of a table row (| name |), not just anywhere.
+modules/processing/README.md | ^\| *`?router_failures_queue_name`? *\| | needs a table row for the router_failures_queue_name output
+modules/processing/README.md | ^\| *`?router_failures_queue_url`? *\| | needs a table row for the router_failures_queue_url output

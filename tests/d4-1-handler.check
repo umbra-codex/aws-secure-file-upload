@@ -1,0 +1,12 @@
+# D4 step 1: modules/processing/src/handler.py, the edge cases.
+# Format: file | regular expression the file must contain | message if it doesn't
+modules/processing/src/handler.py | \.get\(["']Item["']\) | must read the row with .get("Item"), which returns None when there is no row
+modules/processing/src/handler.py | (\[|get\()["']status["'] | must read the row's status, to skip an upload that is no longer PENDING
+modules/processing/src/handler.py | ClientError | must catch botocore's ClientError for the expected failures
+modules/processing/src/handler.py | \.response\[ | must look at err.response["Error"]["Code"] and re-raise codes it does not expect
+modules/processing/src/handler.py | ConditionalCheckFailedException | must treat a failed condition (a replay) as already done
+modules/processing/src/handler.py | NoSuchKey | must treat NoSuchKey as a version that is gone
+modules/processing/src/handler.py | NoSuchVersion | must treat NoSuchVersion as a version that is gone
+modules/processing/src/handler.py | ["']404["'] | must treat the code "404" (what HEAD returns) as a version that is gone
+modules/processing/src/handler.py | STALE | must quarantine a vanished version with reason STALE
+modules/processing/src/handler.py | logger\.warning | must log a dropped event or a vanished version at WARNING
