@@ -1,0 +1,3 @@
+# INT step 1: .tflint.hcl turns the last lint rule back on.
+# Format: file | regular expression the file must contain | message if it doesn't
+.tflint.hcl | ^rule "terraform_unused_declarations" \{ *enabled *= *true *\} *(#.*)?$ | must enable the rule on one line: rule "terraform_unused_declarations" { enabled = true }

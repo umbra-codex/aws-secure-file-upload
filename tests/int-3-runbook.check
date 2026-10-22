@@ -1,0 +1,17 @@
+# INT step 3: README.md carries the runbook.
+# Format: file | regular expression the file must contain | message if it doesn't
+README.md | ^##+ .*[Rr]unbook | needs a Runbook section: a heading with the word Runbook
+README.md | ^###+ .*[Qq]uarantined | needs a subsection about a quarantined file: a heading with the word quarantined
+README.md | ^###+ .*([Pp]ending|PENDING) | needs a subsection about an upload that is stuck as PENDING: a heading with the word PENDING
+README.md | ^###+ .*[Ff]ailure [Qq]ueue | needs a subsection about the failure queues: a heading with the words failure queue
+README.md | ^###+ .*[Aa]lert | needs a subsection about an alert email: a heading with the word alert
+README.md | scripts/redrive\.sh | must tell the reader to run scripts/redrive.sh for events in router-failures
+README.md | scan_dlq_name | must name the scan DLQ's Terraform output, scan_dlq_name
+README.md | router_failures_queue_url | must name router-failures' Terraform output, router_failures_queue_url
+README.md | ^\| *`?THREATS_FOUND`?[^|]*\| | needs a table row for the reason THREATS_FOUND
+README.md | ^\| *`?UNSUPPORTED`?[^|]*\| | needs a table row for the reason UNSUPPORTED
+README.md | ^\| *`?ACCESS_DENIED`?[^|]*\| | needs a table row for the reason ACCESS_DENIED
+README.md | ^\| *`?FAILED`?[^|]*\| | needs a table row for the reason FAILED
+README.md | ^\| *`?INVALID_TYPE`?[^|]*\| | needs a table row for the reason INVALID_TYPE
+README.md | ^\| *`?TOO_LARGE`?[^|]*\| | needs a table row for the reason TOO_LARGE
+README.md | ^\| *`?STALE`?[^|]*\| | needs a table row for the reason STALE

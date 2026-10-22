@@ -162,7 +162,7 @@ Each brief lists the milestones it depends on. Briefs appear in `docs/milestones
 | D2 | Routing, failure queue, redrive | [D2.md](docs/milestones/D2.md) |
 | D3 | File-type and size validation | [D3.md](docs/milestones/D3.md) |
 | D4 | Idempotency and right-sizing | [D4.md](docs/milestones/D4.md) |
-| INT | End-to-end tests in every account | coming |
+| INT | The last lint rule, the runbook, and the end-to-end test | [INT.md](docs/milestones/INT.md) |
 
 ## Cost and cleanup
 
