@@ -5,6 +5,7 @@
 *.tfplan
 crash.log
 crash.*.log
+.terraform.lock.hcl
 
 # Your personal settings (copy the .example files)
 *.tfvars
