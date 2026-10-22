@@ -1,6 +1,6 @@
 # Portion B: Upload API and Observability
 
-**Owner:** (unassigned) · **Module:** `modules/upload_api/` (wired in `upload_api.tf`) · **Code:** `modules/upload_api/src/` · **Milestones:** B1, B2, B3
+**Owner:** @Bright-Daniels13 · **Module:** `modules/upload_api/` (wired in `upload_api.tf`) · **Code:** `modules/upload_api/src/` · **Milestones:** B1, B2, B3
 
 Back to [the project overview](../overview.md) for the architecture, shared contracts, and schedule.
 
