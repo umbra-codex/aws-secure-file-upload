@@ -55,13 +55,18 @@ The finished line has the shape `rule "<name>" { enabled = <value> }`. Then open
 **How you see the result.** `tflint` is not one of the numbered steps. It is a separate step of the run on GitHub (Actions, the newest run) that comes after the check, and GitHub skips it while any numbered step is ❌. So you won't see its findings until step 3 is ✅: finish the runbook, then open the **tflint** step of that run. On a correct build it prints nothing. If it reports `variable "x" is declared but not used`, a milestone left something behind. Fix it in this PR: delete the declaration, along with any argument that only existed to feed it, or use it if it was meant to be used. Leave exactly one block for the rule (your reviewer checks that the old one is gone), and do not turn the rule off again. If the finding is in someone else's module, tell them in the PR and make the smallest fix; a reviewer from that portion approves it.
 
 > **✅ Checkpoint: step 1 (tflint)**
-> Save `.tflint.hcl` and `milestones.txt`, then format, commit, push, and open your draft pull request (the `gh pr create` line is only needed this once):
+> Save `.tflint.hcl` and `milestones.txt`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+> ```bash
+> scripts/check-local.sh
+> ```
+> Step 1 should now be ✅. It confirms the rule is enabled on one line, written exactly as above. Step 2 (wiring) builds nothing and should already be ✅ if every earlier portion finished; if it is ❌, its message lists the module outputs that are still placeholders, so ask that portion's owner to finish. Step 3 stays ❌ until you build it.
+> Then format, commit, push, and open your draft pull request (the `gh pr create` line is only needed this once):
 > ```bash
 > terraform fmt -recursive
 > git add -A && git commit -m "feat(int): turn on the unused declarations lint rule" && git push
 > gh pr create --fill --draft
 > ```
-> Open the check's results (see [How to see your results](#how-to-see-your-results) below). Step 1 should now be ✅. It confirms the rule is enabled on one line, written exactly as above. Step 2 (wiring) builds nothing and should already be ✅ if every earlier portion finished; if it is ❌, its message lists the module outputs that are still placeholders, so ask that portion's owner to finish. Step 3 stays ❌ until you build it.
+> The push runs the same check on GitHub.
 
 ## Part 2: The wiring gate (nothing to build)
 
@@ -91,49 +96,54 @@ Write it for someone who didn't build the system. Name the Terraform outputs and
 **Docs:** [Runbooks in the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/ops_ready_to_support_use_runbooks.html) · [Markdown tables](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables)
 
 > **✅ Checkpoint: step 3 (runbook)**
-> Save `README.md`, then format, commit, and push:
+> Save `README.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+> ```bash
+> scripts/check-local.sh
+> ```
+> Step 3 should now be ✅. It confirms a Runbook heading, the four subsections, a table row for each of the seven reasons, and mentions of `scripts/redrive.sh`, `scan_dlq_name`, and `router_failures_queue_url`. It can't judge whether the advice is right; your reviewer does. Every step should now be ✅ and the summary should say `👍 INT passed.` The summary covers the numbered steps only: tflint runs after them, so also check that the run as a whole is green on your PR. Next: "Done when" below.
+> Then format, commit, and push:
 > ```bash
 > terraform fmt -recursive
 > git add -A && git commit -m "docs(int): add the runbook" && git push
 > ```
-> Open the check's results (see [How to see your results](#how-to-see-your-results) below). Step 3 should now be ✅. It confirms a Runbook heading, the four subsections, a table row for each of the seven reasons, and mentions of `scripts/redrive.sh`, `scan_dlq_name`, and `router_failures_queue_url`. It can't judge whether the advice is right; your reviewer does. Every step should now be ✅ and the summary should say `👍 Passed.` The summary covers the numbered steps only: tflint runs after them, so also check that the run as a whole is green on your PR. Next: "Done when" below.
+> The push runs the same check on GitHub.
 
 ## Check it
 
 ### How to see your results
 
-The check never runs on your machine. It runs on GitHub every time you push, and the results are stored there: on the run's page under **Actions**, and on your pull request as the **ci** check. There are two ways to see them.
+The check runs in two places. `scripts/check-local.sh` runs it on your machine at every checkpoint, and A1's [How to see your results](A1.md#how-to-see-your-results) explains that screen. GitHub runs it on every push, and the results are stored there: on the run's page under **Actions**, and on your pull request as the **ci** check.
 
 **After a push (automatic):** open the repo on GitHub, click **Actions**, click the newest run, and scroll to **Summary**. The table lists every step with ✅ or ❌. Click **Output of the failed steps** under it to see what each ❌ expected and what it found.
 
-**From your terminal (re-check without pushing):**
+**On GitHub, from your terminal:**
 
 ```bash
 scripts/remote-check.sh
 ```
 
-This asks GitHub to run the check again on your branch, waits for it to finish, and prints your progress. When the milestone is complete, it looks like this:
+This follows the run your push started, waits for it if it is still running, and prints the same summary. When the milestone is complete, it looks like this:
 
 ```
 Checking the last commit you pushed to int-end-to-end (3f2c1ab)
-Waiting for GitHub to start the run...
+Looking for the run your push started...
 Run finished in 71s
 
-INT progress: 3 of 3 steps done
+INT: 3 of 3 steps done
   ✅ formatting, init, validate
   ✅ step 1 (tflint)
   ✅ step 2 (wiring)
   ✅ step 3 (runbook)
   ✅ earlier milestones still pass (M0, A1, A2, A3, A4, B1, B2, B3, C1, C2, C3, D1, D2, D3, D4)
 
-👍 INT passed. Next: run "Done when" in your own AWS account.
+👍 INT passed.
 
 Full results: https://github.com/umbra-codex/aws-secure-file-upload/actions/runs/123456789
 ```
 
 The list of earlier milestones is whatever `milestones.txt` holds on your branch, so yours may differ from this example. If any line shows ❌, the first one is marked `<- next`, and the last line names the step to fix. It checks what you have **pushed**, not unsaved edits; if you have uncommitted changes or unpushed commits, it says so first. Nothing is saved on your machine: close the terminal and the results are still on GitHub. It needs the GitHub CLI, signed in (`gh auth login`). If the script itself fails, open the newest run under **Actions** instead; the same table is in its Summary.
 
-**To re-check after a fix:** format, commit, and push. The push runs the check automatically. Run `scripts/remote-check.sh` only when you want a fresh run without pushing anything new.
+**To re-check after a fix:** fix the file, run `scripts/check-local.sh` until the step is ✅, then format, commit, and push. The push runs the check on GitHub, and `scripts/remote-check.sh` follows that run.
 
 INT runs in three steps:
 
@@ -143,7 +153,7 @@ INT runs in three steps:
 | 2 (wiring) | (nothing to build) | no module output is still a placeholder, so every portion finished |
 | 3 (runbook) | README.md | a Runbook section with the four situations, the seven reasons, and the redrive script |
 
-Every milestone already listed in `milestones.txt` is re-checked too. If the summary shows only `formatting`, `init`, and `validate` with no step rows, `validate` failed and the run stopped before any step ran: read the `validate` output. If `formatting` is ❌, run `terraform fmt -recursive`, commit, and push. See A1's [Check it](A1.md#check-it) for how to read each kind of failure.
+Every milestone already listed in `milestones.txt` is re-checked too, so a red row can name an earlier milestone: `scripts/check-local.sh <that milestone>` works on it alone. When a gate row is ❌ or the step table never appears, the `Next:` line names the gate that failed and prints the check's own message; for `formatting` it lists the files `terraform fmt` would change. See A1's [Check it](A1.md#check-it) for how to read each kind of failure.
 
 ## Done when (in your own AWS account)
 
@@ -308,6 +318,12 @@ Add `INT` to `milestones.txt`, then format, commit, and push:
 ```bash
 terraform fmt -recursive
 git add -A && git commit -m "chore(int): add INT to milestones.txt" && git push
+```
+
+Before you mark it ready, check GitHub once. `scripts/remote-check.sh` follows the run your last push started and prints the same summary, and it needs no new commit or push ([A1](A1.md#how-to-see-your-results) explains the output):
+
+```bash
+scripts/remote-check.sh
 ```
 
 Paste the "Done when" output into your draft PR. For the lead, that is all eight tests; for everyone else, it is tests 1, 2, and 7, with a line saying so. The tflint step of the run must be green too: the summary table covers the numbered steps only, so look at the run's overall mark on the PR. The repo is squash-only, so the PR's title becomes the commit on `main`, and `--fill` named it after your first checkpoint. Retitle it to the whole milestone, then mark it ready (see A1's [Mark the pull request ready](A1.md#mark-the-pull-request-ready)):
