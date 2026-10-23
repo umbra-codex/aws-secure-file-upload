@@ -1,83 +1,76 @@
 #!/usr/bin/env bash
-# Re-runs the milestone check on GitHub for your pushed branch and prints your progress.
+# Follows the check GitHub ran for the commit you pushed, and prints one screen.
 #
-#   scripts/remote-check.sh       check the milestone your branch points at (a1-buckets -> A1)
-#   scripts/remote-check.sh A1    check a specific milestone
+#   scripts/remote-check.sh              the milestone your branch points at (a1-buckets -> A1)
+#   scripts/remote-check.sh A1           a specific milestone
+#   scripts/remote-check.sh --explain    the same, plus the failed step's raw output
+#   scripts/remote-check.sh --summarize A1 < log.txt    the summary alone, from a saved log
 #
-# You usually don't need this: every `git push` already runs the check. Use it
-# to re-run without pushing. GitHub checks what you have PUSHED, not local edits.
-# Nothing is saved on your machine; the results stay on GitHub.
+# You rarely need this: every `git push` already runs the check, and the briefs
+# ask for one look here before you mark the pull request ready. It reads the run
+# your push started, waits for it to appear, and only starts a run itself when
+# that commit has none. GitHub checks what you have PUSHED, so uncommitted work
+# is invisible here.
 # Needs the GitHub CLI (https://cli.github.com), signed in with `gh auth login`.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
+GH=${GH:-gh}
+POLLS=${POLLS:-15}          # 15 x 2 s: how long to wait for the push's run to appear
+POLL_SLEEP=${POLL_SLEEP:-2}
+
 upper() { printf '%s' "$1" | tr '[:lower:]' '[:upper:]'; }
 
-# Reads the "Milestone checks" output of a finished run on stdin and prints a
-# progress summary for one milestone.
-summarize() {
-  local target="$1" rows line name mark
-  local gates_ok=1 done=0 total=0 next="" earlier="" earlier_bad="" steps=""
-  rows=$(grep -E '^  (✅|❌) ' || true)
-  while IFS= read -r line; do
-    case "$line" in
-      "  ✅ "*) mark="✅"; name=${line#"  ✅ "} ;;
-      "  ❌ "*) mark="❌"; name=${line#"  ❌ "} ;;
-      *) continue ;;
-    esac
-    case "$name" in
-      "formatting (fmt -check)" | init | validate)
-        [ "$mark" = "✅" ] || gates_ok=0 ;;
-      "$target step "* | "$target spec" | "$target: "*)
-        total=$((total + 1))
-        if [ "$mark" = "✅" ]; then
-          done=$((done + 1)); steps="$steps  ✅ ${name#"$target "}
-"
-        else
-          if [ -z "$next" ]; then next=${name#"$target "}; steps="$steps  ❌ ${name#"$target "}      <- next
-"
-          else steps="$steps  ❌ ${name#"$target "}
-"; fi
-        fi ;;
-      *)
-        id=${name%% *}; id=${id%:}
-        case " $earlier " in *" $id "*) ;; *) earlier="$earlier $id" ;; esac
-        [ "$mark" = "✅" ] || case " $earlier_bad " in *" $id "*) ;; *) earlier_bad="$earlier_bad $id" ;; esac ;;
-    esac
-  done <<< "$rows"
-
-  echo
-  echo "$target progress: $done of $total steps done"
-  if [ "$gates_ok" -eq 1 ]; then echo "  ✅ formatting, init, validate"; else echo "  ❌ formatting, init, or validate (fix this first; open the results page for details)"; fi
-  printf '%s' "$steps"
-  if [ -n "$earlier" ]; then
-    if [ -z "$earlier_bad" ]; then echo "  ✅ earlier milestones still pass ($(echo $earlier | sed 's/ /, /g'))"
-    else echo "  ❌ earlier milestones broken:$(echo $earlier_bad | sed 's/^/ /; s/ /, /g; s/^, / /')"; fi
-  fi
-  echo
-  if [ "$gates_ok" -eq 1 ] && [ "$done" -eq "$total" ] && [ "$total" -gt 0 ] && [ -z "$earlier_bad" ]; then
-    echo "👍 $target passed. Next: run \"Done when\" in your own AWS account."
-  elif [ -n "$next" ]; then
-    echo "Next: fix $target $next, then commit and push."
-  else
-    echo "Next: fix the ❌ line above, then commit and push."
-  fi
+usage() {
+  cat <<'EOF'
+Usage: scripts/remote-check.sh [milestone] [--explain]
+       scripts/remote-check.sh --summarize <milestone>   (reads a saved log on stdin)
+EOF
 }
 
 # Lets the summary be tested without GitHub: scripts/remote-check.sh --summarize A1 < log.txt
-if [ "${1:-}" = "--summarize" ]; then summarize "$(upper "$2")"; exit 0; fi
+if [ "${1:-}" = "--summarize" ]; then
+  exec bash scripts/why.sh --summary "$(upper "${2:-}")"
+fi
 
-command -v gh >/dev/null 2>&1 || { echo "❌ Install the GitHub CLI first: https://cli.github.com"; exit 1; }
+target=""
+explain=0
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help) usage; exit 0 ;;
+    --explain) explain=1 ;;
+    -*) echo "❌ scripts/remote-check.sh: unknown option $arg"; usage; exit 2 ;;
+    *) target=$(upper "$arg") ;;
+  esac
+done
 
-branch=$(git rev-parse --abbrev-ref HEAD)
-if ! git rev-parse "@{u}" >/dev/null 2>&1; then
-  echo "❌ $branch isn't on GitHub yet. Push it first: git push -u origin $branch"
+command -v "$GH" >/dev/null 2>&1 || { echo "❌ Install the GitHub CLI first: https://cli.github.com"; exit 1; }
+
+# One preflight before anything is claimed about runs: a signed-out CLI cannot
+# answer a single question here, and polling for 30 s would end in a wrong
+# explanation of why nothing came back.
+if ! auth_out=$("$GH" auth status 2>&1); then
+  echo "❌ The GitHub CLI can't reach your account, so nothing was checked:"
+  printf '%s\n' "$auth_out" | sed 's/^/   /'
+  case "$auth_out" in
+    *"gh auth login"*) ;;
+    *) echo "   Run: gh auth login" ;;
+  esac
+  exit 1
+fi
+
+branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+if [ -z "$branch" ] || ! git rev-parse "@{u}" >/dev/null 2>&1; then
+  echo "❌ ${branch:-This branch} isn't on GitHub yet. Push it first: git push -u origin <branch>"
   exit 1
 fi
 [ -n "$(git status --porcelain)" ] && echo "⚠️  You have uncommitted changes. GitHub only checks what you've pushed."
-[ "$(git rev-parse HEAD)" != "$(git rev-parse "@{u}")" ] && echo "⚠️  You have commits that aren't pushed. Run git push to include them."
 
-target=$(upper "${1:-}")
+pushed=$(git rev-parse "@{u}")
+if [ "$(git rev-parse HEAD)" != "$pushed" ]; then
+  echo "⚠️  You have commits that aren't pushed. GitHub checks $(git rev-parse --short "$pushed"), so this result won't include them."
+fi
+
 if [ -z "$target" ]; then
   target=$(upper "$(printf '%s' "$branch" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')")
 fi
@@ -86,41 +79,87 @@ if [ -z "$target" ]; then
   exit 1
 fi
 
-latest_run() {
-  gh run list --workflow ci.yml --branch "$branch" --event workflow_dispatch --limit 1 \
-    --json databaseId --jq '.[0].databaseId // empty'
+# The run for this exact commit, if GitHub has created it. No --event filter:
+# the run a push starts is a "push" run, and filtering on workflow_dispatch was
+# why this script never saw it and started a second one instead.
+list_err=$(mktemp "${TMPDIR:-/tmp}/remote-check-gh.XXXXXX") || exit 1
+trap 'rm -f "$list_err"' EXIT
+
+run_for_commit() {
+  "$GH" run list --workflow ci.yml --branch "$branch" --commit "$pushed" --limit 5 \
+    --json databaseId,headSha --jq '.[0].databaseId // empty' 2> "$list_err"
 }
 
-echo "Checking the last commit you pushed to $branch ($(git rev-parse --short "@{u}"))"
-before=$(latest_run)
-if ! out=$(gh workflow run ci.yml --ref "$branch" -f milestone="$target" 2>&1); then
-  echo "❌ Couldn't start the run:"; echo "$out"
+# 0 a run was found (printed), 1 none appeared in time, 2 GitHub could not be asked.
+wait_for_run() {
+  local attempt=0 found=""
+  while [ "$attempt" -lt "$POLLS" ]; do
+    if ! found=$(run_for_commit); then return 2; fi
+    [ -n "$found" ] && { printf '%s' "$found"; return 0; }
+    attempt=$((attempt + 1))
+    sleep "$POLL_SLEEP"
+  done
+  return 1
+}
+
+echo "Checking the last commit you pushed to $branch ($(git rev-parse --short "$pushed"))"
+
+echo "Looking for the run your push started..."
+run=$(wait_for_run)
+run_status=$?
+if [ "$run_status" -eq 2 ]; then
+  echo "❌ Couldn't ask GitHub for the run, so nothing was checked:"
+  sed 's/^/   /' "$list_err"
   exit 1
 fi
 
-echo "Waiting for GitHub to start the run..."
-run=""
-for _ in $(seq 1 30); do
-  run=$(latest_run)
-  [ -n "$run" ] && [ "$run" != "$before" ] && break
-  run=""
-  sleep 2
-done
 if [ -z "$run" ]; then
-  echo "❌ The run didn't appear within a minute. Check the repo's Actions tab."
+  # Only when this commit has no run at all: a push that started nothing, or a
+  # branch whose run has aged out of the list.
+  echo "None for this commit yet, so starting one..."
+  if ! out=$("$GH" workflow run ci.yml --ref "$branch" -f milestone="$target" 2>&1); then
+    echo "❌ Couldn't start the run:"; echo "$out"
+    exit 1
+  fi
+  run=$(wait_for_run)
+  run_status=$?
+  if [ "$run_status" -eq 2 ]; then
+    echo "❌ Couldn't ask GitHub for the run it just started:"
+    sed 's/^/   /' "$list_err"
+    exit 1
+  fi
+fi
+
+if [ -z "$run" ]; then
+  echo "❌ No run appeared for this commit. Open the repo's Actions tab to see what GitHub has."
   exit 1
 fi
 
 start=$SECONDS
-gh run watch "$run" --exit-status >/dev/null 2>&1
+"$GH" run watch "$run" --exit-status >/dev/null 2>&1
 status=$?
 echo "Run finished in $((SECONDS - start))s"
 
-gh run view "$run" --log 2>/dev/null \
-  | awk -F'\t' '$2 == "Milestone checks" { print $3 }' \
-  | sed -E 's/^[0-9T:.Z-]+ //' \
-  | summarize "$target"
+log=$(mktemp "${TMPDIR:-/tmp}/remote-check.XXXXXX") || exit 1
+if ! "$GH" run view "$run" --log > "$log" 2>/dev/null; then
+  echo "❌ Couldn't download the run's log. Open it on GitHub: $("$GH" run view "$run" --json url --jq .url 2>/dev/null)"
+  rm -f "$log"
+  exit 1
+fi
 
 echo
-echo "Full results: $(gh run view "$run" --json url --jq .url)"
-exit $status
+export WHY_EXPLAIN_CMD="scripts/remote-check.sh --explain"
+bash scripts/why.sh --summary "$target" < "$log"
+
+# A gate can fail before any step runs, and a run can die before the check
+# prints anything at all: ask for the first thing to fix, not for a step.
+if [ "$explain" -eq 1 ]; then
+  bash scripts/why.sh --first "$target" --explain < "$log"
+else
+  bash scripts/why.sh --first "$target" < "$log"
+fi
+rm -f "$log"
+
+echo
+echo "Full results: $("$GH" run view "$run" --json url --jq .url 2>/dev/null)"
+exit "$status"

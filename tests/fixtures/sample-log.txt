@@ -1,0 +1,708 @@
+check	Set up job	﻿2026-10-22T23:09:25.2162947Z Current runner version: '2.338.0'
+##[group]Runner Image Provisioner
+Hosted Compute Agent
+Version: 20261012.601
+Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+Build Date: 2026-10-12T17:48:21Z
+Worker ID: {8e0fa559-9bb8-43d6-a6db-750312ebcbe7}
+Region: westus3
+Cloud: Azure
+##[endgroup]
+##[group]Operating System
+Ubuntu
+24.04.5
+LTS
+##[endgroup]
+##[group]Runner Image
+Image: ubuntu-24.04
+Version: 20261012.334.1
+Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+##[endgroup]
+##[group]GITHUB_TOKEN Permissions
+Contents: read
+Metadata: read
+##[endgroup]
+Secret source: Actions
+Cache mode: write
+Prepare workflow directory
+Prepare all required actions
+Getting action download info
+Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+Download action repository 'hashicorp/setup-terraform@v4' (SHA:dfe3c3f87815947d99a8997f908cb6525fc44e9e)
+Download action repository 'actions/cache@v6' (SHA:55cc8345863c7cc4c66a329aec7e433d2d1c52a9)
+Download action repository 'terraform-linters/setup-tflint@v6' (SHA:6ffdbaa3be476b3431f7275c26966ef32ff60337)
+Complete job name: check
+check	Run actions/checkout@v7	﻿2026-10-22T23:09:27.6164188Z ##[group]Run actions/checkout@v7
+with:
+  repository: umbra-codex/aws-secure-file-upload
+  token: ***
+  ssh-strict: true
+  ssh-user: git
+  persist-credentials: true
+  clean: true
+  sparse-checkout-cone-mode: true
+  fetch-depth: 1
+  fetch-tags: false
+  show-progress: true
+  lfs: false
+  submodules: false
+  set-safe-directory: true
+  allow-unsafe-pr-checkout: false
+##[endgroup]
+Syncing repository: umbra-codex/aws-secure-file-upload
+##[group]Getting Git version info
+Working directory is '/home/runner/work/aws-secure-file-upload/aws-secure-file-upload'
+[command]/usr/bin/git version
+git version 2.55.0
+##[endgroup]
+Temporarily overriding HOME='/home/runner/work/_temp/d7e45583-909a-4847-ba3d-f389e4ca568f' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+[command]/usr/bin/git config --global --add safe.directory /home/runner/work/aws-secure-file-upload/aws-secure-file-upload
+Deleting the contents of '/home/runner/work/aws-secure-file-upload/aws-secure-file-upload'
+##[group]Determining repository object format
+##[endgroup]
+##[group]Initializing the repository
+[command]/usr/bin/git init /home/runner/work/aws-secure-file-upload/aws-secure-file-upload
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+Initialized empty Git repository in /home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git/
+[command]/usr/bin/git remote add origin https://github.com/umbra-codex/aws-secure-file-upload
+##[endgroup]
+##[group]Disabling automatic garbage collection
+[command]/usr/bin/git config --local gc.auto 0
+##[endgroup]
+##[group]Setting up auth
+Removing SSH command configuration
+[command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Removing HTTP extra header
+[command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Removing includeIf entries pointing to credentials config files
+[command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+[command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+[command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+[command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git.path /home/runner/work/_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+##[endgroup]
+##[group]Fetching the repository
+[command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +0561f0edeafdb4bb32d40552e61359a7c7ece0be:refs/remotes/origin/a1-buckets
+From https://github.com/umbra-codex/aws-secure-file-upload
+ * [new ref]         0561f0edeafdb4bb32d40552e61359a7c7ece0be -> origin/a1-buckets
+[command]/usr/bin/git branch --list --remote origin/a1-buckets
+  origin/a1-buckets
+[command]/usr/bin/git rev-parse refs/remotes/origin/a1-buckets
+0561f0edeafdb4bb32d40552e61359a7c7ece0be
+##[endgroup]
+##[group]Determining the checkout info
+##[endgroup]
+[command]/usr/bin/git sparse-checkout disable
+[command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+##[group]Checking out the ref
+[command]/usr/bin/git checkout --progress --force -B a1-buckets refs/remotes/origin/a1-buckets
+Switched to a new branch 'a1-buckets'
+branch 'a1-buckets' set up to track 'origin/a1-buckets'.
+##[endgroup]
+[command]/usr/bin/git log -1 --format=%H
+0561f0edeafdb4bb32d40552e61359a7c7ece0be
+check	Run hashicorp/setup-terraform@v4	﻿2026-10-22T23:09:28.4810522Z ##[group]Run hashicorp/setup-terraform@v4
+with:
+  terraform_version: 1.16.6
+  terraform_wrapper: false
+  cli_config_credentials_hostname: app.terraform.io
+##[endgroup]
+[command]/usr/bin/unzip -o -q /home/runner/work/_temp/28772a42-d779-464d-b3ed-da11dadab0ae
+check	Work out which milestone to check	﻿2026-10-22T23:09:29.7541991Z ##[group]Run echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> "$GITHUB_ENV"
+^[[36;1mecho "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> "$GITHUB_ENV"^[[0m
+^[[36;1mmkdir -p "$HOME/.terraform.d/plugin-cache"^[[0m
+^[[36;1mm="$INPUT_MILESTONE"^[[0m
+^[[36;1mif [ -n "$m" ] && ! printf '%s' "$m" | grep -Eq '^[A-Za-z0-9]{1,4}$'; then^[[0m
+^[[36;1m  echo "::error::milestone must look like A1, M0 or INT"; exit 1^[[0m
+^[[36;1mfi^[[0m
+^[[36;1mif [ -z "$m" ]; then^[[0m
+^[[36;1m  m=$(printf '%s' "$BRANCH" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')^[[0m
+^[[36;1mfi^[[0m
+^[[36;1mm=$(printf '%s' "$m" | tr '[:lower:]' '[:upper:]')^[[0m
+^[[36;1mecho "milestone=$m" >> "$GITHUB_OUTPUT"^[[0m
+^[[36;1m# The gate runs only for a milestone that has a brief. "all" (which^[[0m
+^[[36;1m# check.sh treats as the whole ledger) and a typo have no brief, so^[[0m
+^[[36;1m# they go to the milestone checks and skip the gate instead of^[[0m
+^[[36;1m# failing it with "does not exist".^[[0m
+^[[36;1mgate=""^[[0m
+^[[36;1mif printf '%s' "$m" | grep -Eq '^(INT|[A-D][0-9])$'; then gate=yes; fi^[[0m
+^[[36;1mecho "gate=$gate" >> "$GITHUB_OUTPUT"^[[0m
+^[[36;1mecho "Checking ${m:-no branch milestone} plus everything in milestones.txt"^[[0m
+shell: /usr/bin/bash -e {0}
+env:
+  INPUT_MILESTONE: 
+  BRANCH: a1-buckets
+##[endgroup]
+Checking A1 plus everything in milestones.txt
+check	Dependencies are merged	﻿2026-10-22T23:09:29.7934770Z ##[group]Run # A ref the branch's clone does not track (a single-branch checkout)
+^[[36;1m# A ref the branch's clone does not track (a single-branch checkout)^[[0m
+^[[36;1m# needs the destination spelled out; `git fetch origin main` would^[[0m
+^[[36;1m# silently create nothing there.^[[0m
+^[[36;1mfetched=""^[[0m
+^[[36;1mfor attempt in 1 2; do^[[0m
+^[[36;1m  if git fetch --no-tags --depth=1 origin '+refs/heads/main:refs/remotes/origin/main'; then^[[0m
+^[[36;1m    fetched=yes^[[0m
+^[[36;1m    break^[[0m
+^[[36;1m  fi^[[0m
+^[[36;1m  echo "::warning::could not fetch origin/main (attempt $attempt of 2)"^[[0m
+^[[36;1mdone^[[0m
+^[[36;1mif [ -z "$fetched" ]; then^[[0m
+^[[36;1m  echo "::error::could not fetch origin/main (network or permissions), so a merged dependency cannot be told from a missing one. Re-run this job; do not read this as a dependency failure."^[[0m
+^[[36;1m  exit 1^[[0m
+^[[36;1mfi^[[0m
+^[[36;1m.github/scripts/deps.sh "$MILESTONE"^[[0m
+shell: /usr/bin/bash -e {0}
+env:
+  TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
+  MILESTONE: A1
+##[endgroup]
+From https://github.com/umbra-codex/aws-secure-file-upload
+ * [new branch]      main       -> origin/main
+Dependencies of A1: M0
+  ✅ M0
+👍 Every dependency of A1 is merged.
+check	Cache the AWS provider	﻿2026-10-22T23:09:30.3675215Z ##[group]Run actions/cache@v6
+with:
+  path: ~/.terraform.d/plugin-cache
+  key: tf-providers-Linux-
+  enableCrossOsArchive: false
+  fail-on-cache-miss: false
+  lookup-only: false
+  save-always: false
+env:
+  TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
+##[endgroup]
+Cache hit for: tf-providers-Linux-
+Received 29360128 of 142256078 (20.6%), 28.0 MBs/sec
+Received 134217728 of 142256078 (94.3%), 63.3 MBs/sec
+Received 142256078 of 142256078 (100.0%), 49.9 MBs/sec
+Cache Size: ~136 MB (142256078 B)
+[command]/usr/bin/tar -xf /home/runner/work/_temp/d55faab2-30d1-4aa9-ad6a-46a330b138f4/cache.tzst -P -C /home/runner/work/aws-secure-file-upload/aws-secure-file-upload --use-compress-program unzstd
+Cache restored successfully
+Cache restored from key: tf-providers-Linux-
+check	Milestone checks	﻿2026-10-22T23:09:34.4337894Z ##[group]Run .github/scripts/check.sh $MILESTONE all
+^[[36;1m.github/scripts/check.sh $MILESTONE all^[[0m
+shell: /usr/bin/bash -e {0}
+env:
+  TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
+  MILESTONE: A1
+##[endgroup]
+Checking A1 M0 with Terraform v1.16.6
+  ✅ formatting (fmt -check)
+  ✅ init
+  ✅ validate
+  ✅ A1 step 1 (variables)
+  ❌ A1 step 2 (resources)
+     tests/a1-2-resources.tftest.hcl... in progress
+       run "bucket_basics"... fail
+     
+     Warning: Invalid override target
+     
+       on tests/a1-2-resources.tftest.hcl line 33, in run "bucket_basics":
+       33:     target = aws_s3_bucket.this
+     
+     The override target aws_s3_bucket.this does not exist within the
+     configuration under test. This could indicate a typo in the target address or
+     an unnecessary override.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 41, in run "bucket_basics":
+       41:     condition     = aws_s3_bucket.this.bucket == "unit-test-bucket"
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 42, in run "bucket_basics":
+       42:     error_message = "aws_s3_bucket.this must take its bucket name from the bucket_name variable (got ${aws_s3_bucket.this.bucket})."
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 46, in run "bucket_basics":
+       46:     condition     = aws_s3_bucket.this.tags == tomap(var.tags)
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 47, in run "bucket_basics":
+       47:     error_message = "aws_s3_bucket.this must take its tags from the tags variable (got ${jsonencode(aws_s3_bucket.this.tags)})."
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 52, in run "bucket_basics":
+       52:       aws_s3_bucket_public_access_block.this.block_public_acls &&
+     
+     A managed resource "aws_s3_bucket_public_access_block" "this" has not been
+     declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 53, in run "bucket_basics":
+       53:       aws_s3_bucket_public_access_block.this.block_public_policy &&
+     
+     A managed resource "aws_s3_bucket_public_access_block" "this" has not been
+     declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 54, in run "bucket_basics":
+       54:       aws_s3_bucket_public_access_block.this.ignore_public_acls &&
+     
+     A managed resource "aws_s3_bucket_public_access_block" "this" has not been
+     declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 55, in run "bucket_basics":
+       55:       aws_s3_bucket_public_access_block.this.restrict_public_buckets
+     
+     A managed resource "aws_s3_bucket_public_access_block" "this" has not been
+     declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 61, in run "bucket_basics":
+       61:     condition     = aws_s3_bucket_public_access_block.this.bucket == aws_s3_bucket.this.id
+     
+     A managed resource "aws_s3_bucket_public_access_block" "this" has not been
+     declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 61, in run "bucket_basics":
+       61:     condition     = aws_s3_bucket_public_access_block.this.bucket == aws_s3_bucket.this.id
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 62, in run "bucket_basics":
+       62:     error_message = "aws_s3_bucket_public_access_block.this must reference the bucket's id, not a typed name (got ${aws_s3_bucket_public_access_block.this.bucket})."
+     
+     A managed resource "aws_s3_bucket_public_access_block" "this" has not been
+     declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 67, in run "bucket_basics":
+       67:     condition = length(aws_s3_bucket_server_side_encryption_configuration.this.rule) == 1 && alltrue([
+     
+     A managed resource "aws_s3_bucket_server_side_encryption_configuration"
+     "this" has not been declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 68, in run "bucket_basics":
+       68:       for r in aws_s3_bucket_server_side_encryption_configuration.this.rule :
+     
+     A managed resource "aws_s3_bucket_server_side_encryption_configuration"
+     "this" has not been declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 76, in run "bucket_basics":
+       76:     condition     = aws_s3_bucket_server_side_encryption_configuration.this.bucket == aws_s3_bucket.this.id
+     
+     A managed resource "aws_s3_bucket_server_side_encryption_configuration"
+     "this" has not been declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 76, in run "bucket_basics":
+       76:     condition     = aws_s3_bucket_server_side_encryption_configuration.this.bucket == aws_s3_bucket.this.id
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 77, in run "bucket_basics":
+       77:     error_message = "The encryption configuration must reference the bucket's id (got ${aws_s3_bucket_server_side_encryption_configuration.this.bucket})."
+     
+     A managed resource "aws_s3_bucket_server_side_encryption_configuration"
+     "this" has not been declared in the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 81, in run "bucket_basics":
+       81:     condition     = length(aws_s3_bucket_versioning.this) == 0 && length(aws_s3_bucket_cors_configuration.this) == 0
+     
+     A managed resource "aws_s3_bucket_versioning" "this" has not been declared in
+     the root module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-2-resources.tftest.hcl line 81, in run "bucket_basics":
+       81:     condition     = length(aws_s3_bucket_versioning.this) == 0 && length(aws_s3_bucket_cors_configuration.this) == 0
+     
+     A managed resource "aws_s3_bucket_cors_configuration" "this" has not been
+     declared in the root module.
+     
+       run "bucket_versioned"... skip
+     
+     Warning: Invalid override target
+     
+       on tests/a1-2-resources.tftest.hcl line 99, in run "bucket_versioned":
+       99:     target = aws_s3_bucket.this
+     
+     The override target aws_s3_bucket.this does not exist within the
+     configuration under test. This could indicate a typo in the target address or
+     an unnecessary override.
+     
+       run "bucket_cors_one_origin"... skip
+     
+     Warning: Invalid override target
+     
+       on tests/a1-2-resources.tftest.hcl line 135, in run "bucket_cors_one_origin":
+      135:     target = aws_s3_bucket.this
+     
+     The override target aws_s3_bucket.this does not exist within the
+     configuration under test. This could indicate a typo in the target address or
+     an unnecessary override.
+     
+       run "bucket_cors_two_origins"... skip
+     tests/a1-2-resources.tftest.hcl... tearing down
+     tests/a1-2-resources.tftest.hcl... fail
+     
+     Failure! 0 passed, 1 failed, 3 skipped.
+  ❌ A1 step 3 (outputs)
+     tests/a1-3-outputs.tftest.hcl... in progress
+       run "outputs_without_options"... fail
+     
+     Warning: Invalid override target
+     
+       on tests/a1-3-outputs.tftest.hcl line 33, in run "outputs_without_options":
+       33:     target = aws_s3_bucket.this
+     
+     The override target aws_s3_bucket.this does not exist within the
+     configuration under test. This could indicate a typo in the target address or
+     an unnecessary override.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-3-outputs.tftest.hcl line 41, in run "outputs_without_options":
+       41:     condition     = output.bucket_id == aws_s3_bucket.this.id && output.bucket_name == aws_s3_bucket.this.bucket && output.bucket_arn == aws_s3_bucket.this.arn
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-3-outputs.tftest.hcl line 41, in run "outputs_without_options":
+       41:     condition     = output.bucket_id == aws_s3_bucket.this.id && output.bucket_name == aws_s3_bucket.this.bucket && output.bucket_arn == aws_s3_bucket.this.arn
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-3-outputs.tftest.hcl line 41, in run "outputs_without_options":
+       41:     condition     = output.bucket_id == aws_s3_bucket.this.id && output.bucket_name == aws_s3_bucket.this.bucket && output.bucket_arn == aws_s3_bucket.this.arn
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared resource
+     
+       on tests/a1-3-outputs.tftest.hcl line 46, in run "outputs_without_options":
+       46:     condition     = output.tags == aws_s3_bucket.this.tags
+     
+     A managed resource "aws_s3_bucket" "this" has not been declared in the root
+     module.
+     
+     Error: Reference to undeclared output value
+     
+       on tests/a1-3-outputs.tftest.hcl line 51, in run "outputs_without_options":
+       51:     condition     = output.versioning_enabled == false && output.cors_enabled == false
+     
+     An output value with the name "versioning_enabled" has not been declared.
+     
+     Error: Reference to undeclared output value
+     
+       on tests/a1-3-outputs.tftest.hcl line 51, in run "outputs_without_options":
+       51:     condition     = output.versioning_enabled == false && output.cors_enabled == false
+     
+     An output value with the name "cors_enabled" has not been declared.
+     
+       run "outputs_with_options"... skip
+     
+     Warning: Invalid override target
+     
+       on tests/a1-3-outputs.tftest.hcl line 70, in run "outputs_with_options":
+       70:     target = aws_s3_bucket.this
+     
+     The override target aws_s3_bucket.this does not exist within the
+     configuration under test. This could indicate a typo in the target address or
+     an unnecessary override.
+     
+     tests/a1-3-outputs.tftest.hcl... tearing down
+     tests/a1-3-outputs.tftest.hcl... fail
+     
+     Failure! 0 passed, 1 failed, 1 skipped.
+  ❌ A1 step 4 (readme)
+     modules/storage/bucket/README.md is missing
+  ❌ A1 step 5 (storage)
+     tests/a1-5-storage.tftest.hcl... in progress
+       run "storage_calls_the_module_three_times"... fail
+     
+     Warning: Invalid override target
+     
+       on tests/a1-5-storage.tftest.hcl line 34, in run "storage_calls_the_module_three_times":
+       34:     target = module.incoming.aws_s3_bucket.this
+     
+     The override target module.incoming.aws_s3_bucket.this does not exist within
+     the configuration under test. This could indicate a typo in the target
+     address or an unnecessary override.
+     
+     (and 2 more similar warnings elsewhere)
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 58, in run "storage_calls_the_module_three_times":
+       58:     condition     = module.incoming.bucket_name == "demo-210987654321-incoming"
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 59, in run "storage_calls_the_module_three_times":
+       59:     error_message = "module \"incoming\" must name its bucket <project_name>-<account_id>-incoming (expected demo-210987654321-incoming, got ${module.incoming.bucket_name}). The account ID must come from aws_caller_identity."
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 63, in run "storage_calls_the_module_three_times":
+       63:     condition     = module.approved.bucket_name == "demo-210987654321-approved"
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 64, in run "storage_calls_the_module_three_times":
+       64:     error_message = "module \"approved\" must name its bucket <project_name>-<account_id>-approved (got ${module.approved.bucket_name})."
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 68, in run "storage_calls_the_module_three_times":
+       68:     condition     = module.quarantine.bucket_name == "demo-210987654321-quarantine"
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 69, in run "storage_calls_the_module_three_times":
+       69:     error_message = "module \"quarantine\" must name its bucket <project_name>-<account_id>-quarantine (got ${module.quarantine.bucket_name})."
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 76, in run "storage_calls_the_module_three_times":
+       76:       for n in [module.incoming.bucket_name, module.approved.bucket_name, module.quarantine.bucket_name] :
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 76, in run "storage_calls_the_module_three_times":
+       76:       for n in [module.incoming.bucket_name, module.approved.bucket_name, module.quarantine.bucket_name] :
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 76, in run "storage_calls_the_module_three_times":
+       76:       for n in [module.incoming.bucket_name, module.approved.bucket_name, module.quarantine.bucket_name] :
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 85, in run "storage_calls_the_module_three_times":
+       85:         { t = module.incoming.tags, name = "demo-210987654321-incoming", role = "incoming" },
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 86, in run "storage_calls_the_module_three_times":
+       86:         { t = module.approved.tags, name = "demo-210987654321-approved", role = "approved" },
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 87, in run "storage_calls_the_module_three_times":
+       87:         { t = module.quarantine.tags, name = "demo-210987654321-quarantine", role = "quarantine" },
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 91, in run "storage_calls_the_module_three_times":
+       91:     error_message = "Each module call must pass tags with Name = the bucket's name, Role = incoming/approved/quarantine, and ManagedBy = \"terraform\" (incoming got ${jsonencode(module.incoming.tags)})."
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 95, in run "storage_calls_the_module_three_times":
+       95:     condition     = module.incoming.versioning_enabled && !module.approved.versioning_enabled && !module.quarantine.versioning_enabled
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 95, in run "storage_calls_the_module_three_times":
+       95:     condition     = module.incoming.versioning_enabled && !module.approved.versioning_enabled && !module.quarantine.versioning_enabled
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 95, in run "storage_calls_the_module_three_times":
+       95:     condition     = module.incoming.versioning_enabled && !module.approved.versioning_enabled && !module.quarantine.versioning_enabled
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 96, in run "storage_calls_the_module_three_times":
+       96:     error_message = "Versioning must be on for Incoming only (incoming=${module.incoming.versioning_enabled}, approved=${module.approved.versioning_enabled}, quarantine=${module.quarantine.versioning_enabled})."
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 96, in run "storage_calls_the_module_three_times":
+       96:     error_message = "Versioning must be on for Incoming only (incoming=${module.incoming.versioning_enabled}, approved=${module.approved.versioning_enabled}, quarantine=${module.quarantine.versioning_enabled})."
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 96, in run "storage_calls_the_module_three_times":
+       96:     error_message = "Versioning must be on for Incoming only (incoming=${module.incoming.versioning_enabled}, approved=${module.approved.versioning_enabled}, quarantine=${module.quarantine.versioning_enabled})."
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 100, in run "storage_calls_the_module_three_times":
+      100:     condition     = !module.incoming.cors_enabled && !module.approved.cors_enabled && !module.quarantine.cors_enabled
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 100, in run "storage_calls_the_module_three_times":
+      100:     condition     = !module.incoming.cors_enabled && !module.approved.cors_enabled && !module.quarantine.cors_enabled
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 100, in run "storage_calls_the_module_three_times":
+      100:     condition     = !module.incoming.cors_enabled && !module.approved.cors_enabled && !module.quarantine.cors_enabled
+     
+     No module call named "quarantine" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 105, in run "storage_calls_the_module_three_times":
+      105:     condition     = output.incoming_bucket_name == module.incoming.bucket_name && output.incoming_bucket_arn == "arn:aws:s3:::demo-210987654321-incoming"
+     
+     No module call named "incoming" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 110, in run "storage_calls_the_module_three_times":
+      110:     condition     = output.approved_bucket_name == module.approved.bucket_name && output.approved_bucket_arn == "arn:aws:s3:::demo-210987654321-approved"
+     
+     No module call named "approved" is declared in the root module.
+     
+     Error: Reference to undeclared module
+     
+       on tests/a1-5-storage.tftest.hcl line 115, in run "storage_calls_the_module_three_times":
+      115:     condition     = output.quarantine_bucket_name == module.quarantine.bucket_name && output.quarantine_bucket_arn == "arn:aws:s3:::demo-210987654321-quarantine"
+     
+     No module call named "quarantine" is declared in the root module.
+     
+       run "storage_cors_only_on_incoming"... skip
+     tests/a1-5-storage.tftest.hcl... tearing down
+     tests/a1-5-storage.tftest.hcl... fail
+     
+     Failure! 0 passed, 1 failed, 1 skipped.
+  ✅ M0 spec
+👎 Failed:
+     - A1 step 2 (resources)
+     - A1 step 3 (outputs)
+     - A1 step 4 (readme)
+     - A1 step 5 (storage)
+   Fix the first one listed, commit, and push. The check runs again on every push.
+##[error]Process completed with exit code 1.
+check	Post Run actions/checkout@v7	﻿2026-10-22T23:09:57.2369305Z Post job cleanup.
+[command]/usr/bin/git version
+git version 2.55.0
+Temporarily overriding HOME='/home/runner/work/_temp/60006928-5196-4900-94fd-b8be48aea1da' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+[command]/usr/bin/git config --global --add safe.directory /home/runner/work/aws-secure-file-upload/aws-secure-file-upload
+Removing SSH command configuration
+[command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Removing HTTP extra header
+[command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Removing includeIf entries pointing to credentials config files
+[command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+includeif.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git.path
+includeif.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git/worktrees/*.path
+includeif.gitdir:/github/workspace/.git.path
+includeif.gitdir:/github/workspace/.git/worktrees/*.path
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git.path
+/home/runner/work/_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-c4866509\-675f\-425f\-ae03\-ef02ee315caa\.config
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git/worktrees/*.path
+/home/runner/work/_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/aws-secure-file-upload/aws-secure-file-upload/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-c4866509\-675f\-425f\-ae03\-ef02ee315caa\.config
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+/github/runner_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-c4866509\-675f\-425f\-ae03\-ef02ee315caa\.config
+[command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+/github/runner_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config
+[command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-c4866509\-675f\-425f\-ae03\-ef02ee315caa\.config
+[command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Removing credentials config '/home/runner/work/_temp/git-credentials-c4866509-675f-425f-ae03-ef02ee315caa.config'
+check	Complete job	﻿2026-10-22T23:09:57.4352767Z Cleaning up orphan processes

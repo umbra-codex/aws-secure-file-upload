@@ -1,5 +1,7 @@
 # Terraform working files and state: never commit these
 .terraform/
+# scripts/check-local.sh keeps the check's own init here, apart from yours
+.terraform-check/
 *.tfstate
 *.tfstate.*
 *.tfplan
