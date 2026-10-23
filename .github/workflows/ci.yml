@@ -28,6 +28,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # The rule the 15 learner briefs share: every checkpoint names the command
+      # the learner runs. A 16th brief inherits it by being linted, not by memory.
+      - name: Briefs name the local check command
+        run: scripts/lint-briefs.sh
+
       - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "1.16.6"
