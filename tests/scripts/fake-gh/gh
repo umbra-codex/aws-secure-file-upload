@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# A stand-in for the GitHub CLI, driven by a JSON file, so remote-check.sh can
+# be tested offline. It answers only the calls that script makes.
+#
+#   FAKE_GH_JSON   the state file (see tests/scripts/remote-check.test.sh)
+#   FAKE_GH_CALLS  where to append one line per call, so a test can assert that
+#                  no run was started when one already existed
+set -uo pipefail
+
+state=${FAKE_GH_JSON:?set FAKE_GH_JSON to a state file}
+calls=${FAKE_GH_CALLS:-/dev/null}
+printf '%s\n' "$*" >> "$calls"
+
+jget() {
+  grep -m1 "\"$1\":" "$state" 2>/dev/null | sed -E 's/.*: *"([^"]*)".*/\1/'
+}
+
+counter="$state.list"
+visible() { # has the run appeared yet?
+  local n
+  n=$(cat "$counter" 2>/dev/null || echo 0)
+  n=$((n + 1))
+  printf '%s' "$n" > "$counter"
+  [ "$n" -gt "$(jget visits_before_run_appears)" ]
+}
+
+case "${1:-} ${2:-}" in
+  "auth status")
+    if [ "$(jget auth_ok)" = "no" ]; then
+      echo "To get started with GitHub CLI, please run:  gh auth login" >&2
+      exit 1
+    fi
+    exit 0
+    ;;
+  "run list")
+    sha=""
+    prev=""
+    for arg in "$@"; do
+      [ "$prev" = "--commit" ] && sha=$arg
+      prev=$arg
+    done
+    [ "$sha" = "$(jget head_sha)" ] || exit 0
+    visible || exit 0
+    if [ -f "$state.dispatched" ]; then
+      cat "$state.dispatched"
+    else
+      jget run_id
+    fi
+    exit 0
+    ;;
+  "run watch")
+    exit "$(jget conclusion_exit)"
+    ;;
+  "run view")
+    case "$*" in
+      *--log*) cat "$(jget log)"; exit 0 ;;
+      *url*)
+        if [ -f "$state.dispatched" ]; then jget dispatch_run_url; else jget run_url; fi
+        exit 0
+        ;;
+    esac
+    exit 0
+    ;;
+  "workflow run")
+    if [ "$(jget dispatch_creates_run)" = "yes" ]; then
+      jget dispatch_run_id > "$state.dispatched"
+    fi
+    exit 0
+    ;;
+esac
+
+echo "fake gh: unsupported call: $*" >&2
+exit 1

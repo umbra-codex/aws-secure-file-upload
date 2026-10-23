@@ -1,0 +1,3 @@
+# One line ending everywhere: LF in the repository and in every checkout, so a
+# clone on Windows behaves the way the Linux runner CI uses does.
+* text=auto eol=lf
