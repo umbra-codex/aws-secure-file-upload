@@ -115,7 +115,7 @@ flowchart TD
 | [C: Scanning and Events](portions/c-scanning-and-events.md) | Rizuanul (@rizuanul90) | GuardDuty, EventBridge, failure queue, alerts | C1-C3 |
 | [D: Processing](portions/d-processing.md) | Baltazar (@blaborte) | Lambda 2, failure queue, redrive | D1-D4 |
 
-Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. Every brief exists today: M0, A1 to A4, B1 to B3, C1 to C3, D1 to D4, and INT. Sean is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test.
+Each portion has a doc in `docs/portions/`, and every milestone has a brief in `docs/milestones/<ID>.md`. Every brief exists today: M0, A1 to A4, B1 to B3, C1 to C3, D1 to D4, INT, and SHIP. Sean is the lead: he sets up the repo ([M0](milestones/M0.md)) and owns the briefs and tests. A different teammate leads **INT**, the final end-to-end test. The lead also owns [SHIP](milestones/SHIP.md), the last milestone, which removes the build scaffolding and rewrites the README for a reader; its last step is checked by `scripts/ship-check.sh`, which fails while anything addressed to a builder is still in the tree.
 
 **Schedule** (merge in this order within each week):
 
@@ -125,7 +125,7 @@ Each portion has a doc in `docs/portions/`, and every milestone has a brief in `
 | 1 | A1 → A2 → B1, C1, D1 (those three in any order once A2 is merged) |
 | 2 | B2, D2; C2 (needs C1 and D1) |
 | 3 | A3 (needs D1), D3, C3, A4 (needs B2) |
-| 4 | B3 (needs C2 and D2), D4 → INT |
+| 4 | B3 (needs C2 and D2), D4 → INT → SHIP |
 
 Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 
@@ -181,7 +181,7 @@ Test 1 is the gate: if a clean file doesn't reach Approved, stop and check the s
 
 The INT lead runs all 8 and pastes the output into the INT PR. Everyone else runs 1, 2, and 7 in their own account, then `destroy`. INT also adds the README runbook ("a file was quarantined, now what") and turns `terraform_unused_declarations` back on.
 
-Stretch goal after INT: a review in the AWS Well-Architected Tool (Serverless Lens), committed to the repo.
+Stretch goal after SHIP: a review in the AWS Well-Architected Tool (Serverless Lens), committed to the repo.
 
 ## Shared contracts
 

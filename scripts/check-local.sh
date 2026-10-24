@@ -54,7 +54,7 @@ fi
 
 if [ -z "$target" ]; then
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-  target=$(upper "$(printf '%s' "$branch" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')")
+  target=$(upper "$(printf '%s' "$branch" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT]|[sS][hH][iI][pP])([-_].*)?$/\1/p')")
   if [ -z "$target" ]; then
     echo "❌ Can't tell the milestone from the branch name \"${branch:-$(pwd)}\". Run: scripts/check-local.sh A1"
     exit 2
@@ -67,13 +67,13 @@ fi
 
 # The dependency gate is a separate CI step, and the spec tests are mocked, so
 # without this a missing dependency looks green here and red on GitHub. CI runs
-# it only for INT and the A-D milestones (ci.yml), so M0 does not get a warning
-# about a gate that never applies to it.
+# it only for INT, SHIP and the A-D milestones (ci.yml), so M0 does not get a
+# warning about a gate that never applies to it.
 deps_bad=0
 deps_msg=""
 deps_wanted=0
 case "$target" in
-  INT|[A-D][0-9]) deps_wanted=1 ;;
+  INT|SHIP|[A-D][0-9]) deps_wanted=1 ;;
 esac
 if [ "$deps_wanted" -eq 1 ] && [ -f "docs/milestones/$target.md" ] && [ -f .github/scripts/deps.sh ]; then
   deps_out=$(bash .github/scripts/deps.sh "$target" 2>&1)

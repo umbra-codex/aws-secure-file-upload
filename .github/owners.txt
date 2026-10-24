@@ -1,8 +1,9 @@
 # Who builds which portion. When a milestone merges, the next-up check opens an
 # issue for each milestone that just became ready and assigns it to its owner.
-# <portion letter or INT> <GitHub username>
+# <portion letter, INT or SHIP> <GitHub username>
 A umbra-codex
 B Bright-Daniels13
 C rizuanul90
 D blaborte
 INT umbra-codex
+SHIP umbra-codex

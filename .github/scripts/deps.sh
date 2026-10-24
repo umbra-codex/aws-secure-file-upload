@@ -49,7 +49,9 @@ done
 if printf '%s' "$rest" | grep -Eq $'[A-D][0-9][[:space:]]*(-|\u2013|\u2014|\\.\\.|THROUGH|TO)[[:space:]]*[A-D][0-9]'; then
   echo "❌ $brief: a range in the Depends on row is not written as 'A1 to A4'"; exit 3
 fi
-for token in $(printf '%s' "$rest" | grep -oE '\b([A-D][0-9]|M0)\b' || true); do deps+=("$token"); done
+# SHIP sits after INT, so a brief that depends on either one by name must have
+# that dependency read as well.
+for token in $(printf '%s' "$rest" | grep -oE '\b([A-D][0-9]|M0|INT|SHIP)\b' || true); do deps+=("$token"); done
 [ "${#deps[@]}" -gt 0 ] || { echo "❌ no milestone IDs found in the Depends on row of $brief"; exit 3; }
 
 # De-duplicate, keeping order.

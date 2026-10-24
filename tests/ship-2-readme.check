@@ -1,0 +1,14 @@
+# SHIP step 2: README.md is the front page a stranger reads in five minutes.
+# Format: file | regular expression the file must contain | message if it doesn't
+README.md | actions/workflows/ci\.yml/badge\.svg | needs the ci badge: the badge URL for .github/workflows/ci.yml
+README.md | ^##+ .*[Ww]hat it is | needs a section that says what the system is
+README.md | ^##+ .*[Aa]rchitecture | needs an Architecture section with the flow
+README.md | ^##+ .*[Pp]roof | needs a section on the proof that it works
+README.md | ^##+ .*[Dd]ecisions | needs a section on the decisions and trade-offs
+README.md | ^##+ .*[Cc]ost | needs a section on cost and teardown
+README.md | ^##+ .*[Rr]un | needs a section on how to run it
+README.md | ^##+ .*[Vv]erify | needs a "what you can verify yourself" section
+README.md | \]\(docs/architecture\.md\) | must link the architecture note
+README.md | \]\(evidence/\) | must link the evidence folder
+README.md | ^```bash | must show the commands in a bash block, not only describe them
+README.md | terraform test | must name the product-test command, terraform test

@@ -46,7 +46,7 @@ try() {
   if [ "${DRY_RUN:-}" = 1 ]; then echo "DRY: $*"; return 0; fi
   "$@" >/dev/null 2>&1
 }
-owner_of() { case "$1" in INT) k=INT ;; *) k=${1:0:1} ;; esac; awk -v k="$k" '$1 == k {print $2; exit}' .github/owners.txt; }
+owner_of() { case "$1" in INT|SHIP) k=$1 ;; *) k=${1:0:1} ;; esac; awk -v k="$k" '$1 == k {print $2; exit}' .github/owners.txt; }
 
 # One assignment path for the first run and for every retry, so a wrong handle
 # is reported every run instead of only once.
@@ -112,9 +112,9 @@ declare -A notice_num=() notice_state=()
 blocked=0
 while IFS=$'\t' read -r num state title assigned; do
   [ -n "$num" ] || continue
-  if [[ $title =~ ^([A-D][0-9]|INT)\ is\ ready: ]]; then
+  if [[ $title =~ ^([A-D][0-9]|INT|SHIP)\ is\ ready: ]]; then
     id=${BASH_REMATCH[1]}
-  elif [[ $title =~ (^|[^A-Za-z0-9])([A-D][0-9]|INT)([^A-Za-z0-9]|$) ]]; then
+  elif [[ $title =~ (^|[^A-Za-z0-9])([A-D][0-9]|INT|SHIP)([^A-Za-z0-9]|$) ]]; then
     id=${BASH_REMATCH[2]}
     echo "::warning::#$num: its title no longer starts with \"<ID> is ready:\", but it still names $id, so the label keeps it tracked"
   else

@@ -72,7 +72,7 @@ if [ "$(git rev-parse HEAD)" != "$pushed" ]; then
 fi
 
 if [ -z "$target" ]; then
-  target=$(upper "$(printf '%s' "$branch" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')")
+  target=$(upper "$(printf '%s' "$branch" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT]|[sS][hH][iI][pP])([-_].*)?$/\1/p')")
 fi
 if [ -z "$target" ]; then
   echo "❌ Can't tell the milestone from the branch name \"$branch\". Run: scripts/remote-check.sh A1"

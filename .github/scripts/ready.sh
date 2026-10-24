@@ -35,8 +35,8 @@ for brief in docs/milestones/*.md; do
   file=$(basename "$brief" .md)
   id=$(printf '%s' "$file" | tr '[:lower:]' '[:upper:]')
   [ "$id" = M0 ] && continue
-  if [ "$file" != "$id" ] || ! printf '%s' "$id" | grep -Eq '^([A-D][0-9]|INT)$'; then
-    echo "::error::$brief: the file name must be a milestone ID in capitals, such as B1 or INT" >&2
+  if [ "$file" != "$id" ] || ! printf '%s' "$id" | grep -Eq '^([A-D][0-9]|INT|SHIP)$'; then
+    echo "::error::$brief: the file name must be a milestone ID in capitals, such as B1, INT or SHIP" >&2
     status=1
     continue
   fi
@@ -52,12 +52,12 @@ for brief in docs/milestones/*.md; do
       continue
       ;;
   esac
-  case "$id" in INT) key=INT ;; *) key=${id:0:1} ;; esac
+  case "$id" in INT|SHIP) key=$id ;; *) key=${id:0:1} ;; esac
   owner=$(awk -v k="$key" '$1 == k {print $2; exit}' .github/owners.txt)
   # The branch name decides which milestone CI checks (the pattern in ci.yml), so
   # a name CI cannot read is worse than no name: say so and ask for a fix.
   branch=$(grep -m1 -E '^\| \*\*Branch\*\* \|' "$brief" | sed -nE 's/^[^`]*`([^`]+)`.*/\1/p')
-  if [ -n "$branch" ] && ! printf '%s' "$branch" | grep -Eq '^([a-dA-D][0-9]|[iI][nN][tT])([-_][A-Za-z0-9._-]*)?$'; then
+  if [ -n "$branch" ] && ! printf '%s' "$branch" | grep -Eq '^([a-dA-D][0-9]|[iI][nN][tT]|[sS][hH][iI][pP])([-_][A-Za-z0-9._-]*)?$'; then
     echo "::warning::$brief: the Branch cell \"$branch\" is not a name CI reads a milestone from; use ${id,,}-<words>, for example ${id,,}-buckets" >&2
     branch=""
   fi
@@ -67,8 +67,8 @@ for brief in docs/milestones/*.md; do
   printf '%s\t%s\t%s\t%s\n' "$id" "${owner:--}" "${branch:--}" "$title"
 done
 
-if [ "$count" -lt 15 ]; then
-  echo "::error::found $count briefs in docs/milestones; expected at least 15. A brief that is missing from the checkout can never be announced" >&2
+if [ "$count" -lt 17 ]; then
+  echo "::error::found $count briefs in docs/milestones; expected at least 17. A brief that is missing from the checkout can never be announced" >&2
   exit 1
 fi
 exit "$status"
