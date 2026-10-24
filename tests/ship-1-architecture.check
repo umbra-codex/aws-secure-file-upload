@@ -1,0 +1,12 @@
+# SHIP step 1: docs/architecture.md holds the design a reader needs.
+# Format: file | regular expression the file must contain | message if it doesn't
+docs/architecture.md | ^# [^#[:space:]] | must start with a title: one # and a space, then the name
+docs/architecture.md | ^##+ .*[Ww]hat it is | needs a section that says what the system is
+docs/architecture.md | ^##+ .*[Dd]ecisions | needs a section on the decisions and trade-offs
+docs/architecture.md | ^##+ .*Well-Architected | needs the pillar table's section
+docs/architecture.md | ^##+ .*[Cc]ontracts | needs a section on the shared contracts
+docs/architecture.md | ^##+ .*[Ss]ources | needs the Sources section
+docs/architecture.md | ^```mermaid | needs the flow as a Mermaid diagram
+docs/architecture.md | uploads/\{upload_id\}/\{safe_filename\} | must state the file key, uploads/{upload_id}/{safe_filename}
+docs/architecture.md | \| .*PENDING | must have the table row that lists the upload statuses
+docs/architecture.md | \]\(decisions\.md\) | must link the decision log at docs/decisions.md

@@ -333,4 +333,4 @@ gh pr edit --title "feat(int): turn on the last lint rule, add the runbook, and 
 gh pr ready
 ```
 
-When this merges, the project is done. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.
+When this merges, the project is built. [SHIP](SHIP.md) is the last milestone: it removes the build scaffolding and rewrites the README for a reader. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.

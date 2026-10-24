@@ -28,8 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # The rule the 15 learner briefs share: every checkpoint names the command
-      # the learner runs. A 16th brief inherits it by being linted, not by memory.
+      # The rule the 16 learner briefs share: every checkpoint names the command
+      # the learner runs. A 17th brief inherits it by being linted, not by memory.
       - name: Briefs name the local check command
         run: scripts/lint-briefs.sh
 
@@ -50,10 +50,10 @@ jobs:
           mkdir -p "$HOME/.terraform.d/plugin-cache"
           m="$INPUT_MILESTONE"
           if [ -n "$m" ] && ! printf '%s' "$m" | grep -Eq '^[A-Za-z0-9]{1,4}$'; then
-            echo "::error::milestone must look like A1, M0 or INT"; exit 1
+            echo "::error::milestone must look like A1, M0, INT or SHIP"; exit 1
           fi
           if [ -z "$m" ]; then
-            m=$(printf '%s' "$BRANCH" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT])([-_].*)?$/\1/p')
+            m=$(printf '%s' "$BRANCH" | sed -nE 's/^([a-dA-D][0-9]|[mM]0|[iI][nN][tT]|[sS][hH][iI][pP])([-_].*)?$/\1/p')
           fi
           m=$(printf '%s' "$m" | tr '[:lower:]' '[:upper:]')
           echo "milestone=$m" >> "$GITHUB_OUTPUT"
@@ -62,7 +62,7 @@ jobs:
           # they go to the milestone checks and skip the gate instead of
           # failing it with "does not exist".
           gate=""
-          if printf '%s' "$m" | grep -Eq '^(INT|[A-D][0-9])$'; then gate=yes; fi
+          if printf '%s' "$m" | grep -Eq '^(INT|SHIP|[A-D][0-9])$'; then gate=yes; fi
           echo "gate=$gate" >> "$GITHUB_OUTPUT"
           echo "Checking ${m:-no branch milestone} plus everything in milestones.txt"
 

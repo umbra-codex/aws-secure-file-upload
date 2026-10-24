@@ -3,7 +3,7 @@
 #
 #   scripts/lint-briefs.sh
 #
-# Markdown has no include, so this is how 15 briefs, and the 16th someone writes
+# Markdown has no include, so this is how 16 briefs, and the 17th someone writes
 # next month, keep the rule. The heading match is case-insensitive, and a line
 # that is meant to be a checkpoint heading but is not written in the one form
 # this lint reads is a problem rather than a silent skip: a brief cannot drift

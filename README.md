@@ -79,7 +79,7 @@ flowchart TD
 | C: Scanning and Events | GuardDuty, EventBridge, DLQ, alerts | C1, C2, C3 |
 | D: Processing | Lambda 2 (validation and routing), failure queue, redrive | D1, D2, D3, D4 |
 
-M0 (repo foundation) and INT (integration) are shared milestones with one owner each.
+M0 (repo foundation) and INT (integration) are shared milestones with one owner each. SHIP (ship) is the lead's: it removes the build scaffolding and rewrites the README for a reader.
 
 ## How we work
 
@@ -163,6 +163,7 @@ Each brief lists the milestones it depends on. Briefs appear in `docs/milestones
 | D3 | File-type and size validation | [D3.md](docs/milestones/D3.md) |
 | D4 | Idempotency and right-sizing | [D4.md](docs/milestones/D4.md) |
 | INT | The last lint rule, the runbook, and the end-to-end test | [INT.md](docs/milestones/INT.md) |
+| SHIP | Ship the repository: cleanup, the README for a stranger, the normal workflow | [SHIP.md](docs/milestones/SHIP.md) |
 
 ## Cost and cleanup
 

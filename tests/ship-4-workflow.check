@@ -1,0 +1,19 @@
+# SHIP step 4: .github/workflows/ci.yml is the normal workflow, not the milestone runner.
+# Every line is a command or a step the workflow needs, not only a command: a file
+# with `terraform validate` but nothing that installs the providers passes this
+# check locally and fails on GitHub, and that gap is what these rules close.
+# Format: file | regular expression the file must contain | message if it doesn't
+.github/workflows/ci.yml | ^  push: | must run on every push
+.github/workflows/ci.yml | ^  pull_request: | must run on every pull request
+.github/workflows/ci.yml | ^  check: | must keep the job name "check", the name the branch protection requires
+.github/workflows/ci.yml | timeout-minutes: 20 | must bound the job: a hung download must not hold the required check
+.github/workflows/ci.yml | actions/checkout | must check the repository out, or every later step has no files
+.github/workflows/ci.yml | setup-terraform | must put Terraform on the runner, or every command below fails
+.github/workflows/ci.yml | terraform init | must install the providers before validate, or a green local run and a red GitHub run disagree
+.github/workflows/ci.yml | terraform fmt -check -recursive | must check formatting
+.github/workflows/ci.yml | terraform validate -no-color | must validate the configuration
+.github/workflows/ci.yml | setup-tflint | must put tflint on the runner
+.github/workflows/ci.yml | tflint --init | must install the ruleset, or the lint step fails on a fresh runner
+.github/workflows/ci.yml | tflint --recursive | must lint with the repository's ruleset
+.github/workflows/ci.yml | AKIA | must scan the tracked files for a secret-looking string
+.github/workflows/ci.yml | terraform test -no-color | must run the product's tests

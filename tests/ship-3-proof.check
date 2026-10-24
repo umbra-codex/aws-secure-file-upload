@@ -1,0 +1,10 @@
+# SHIP step 3: the license, the decision log, and the evidence.
+# Format: file | regular expression the file must contain | message if it doesn't
+LICENSE | ^MIT License | must be the MIT license, starting with its name
+docs/decisions.md | ^# [^#[:space:]] | must start with a title
+docs/decisions.md | ^\| | needs a table of decisions
+docs/decisions.md | 2026- | must date each decision
+evidence/README.md | ^# [^#[:space:]] | must start with a title
+evidence/README.md | ^\| | needs a table: one row per test
+evidence/README.md | actions/runs/ | must link the run that produced the evidence
+evidence/README.md | THREATS_FOUND | must name the verdict the malware test produced
