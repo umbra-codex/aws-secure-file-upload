@@ -1,4 +1,3 @@
-# Outputs of the bucket module. Declared in A1 (see docs/milestones/A1.md). 
 output "bucket_id" {
   description = "ID of the bucket (the same as its name in AWS)."
   value       = aws_s3_bucket.this.id

@@ -1,4 +1,3 @@
-# Inputs of the bucket module. Declared in A1 (see docs/milestones/A1.md).
 variable "bucket_name" {
   description = "Full, globally unique bucket name."
   type        = string
