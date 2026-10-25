@@ -54,19 +54,24 @@ The finished line has the shape `rule "<name>" { enabled = <value> }`. Then open
 
 **How you see the result.** `tflint` is not one of the numbered steps. It is a separate step of the run on GitHub (Actions, the newest run) that comes after the check, and GitHub skips it while any numbered step is ❌. So you won't see its findings until step 3 is ✅: finish the runbook, then open the **tflint** step of that run. On a correct build it prints nothing. If it reports `variable "x" is declared but not used`, a milestone left something behind. Fix it in this PR: delete the declaration, along with any argument that only existed to feed it, or use it if it was meant to be used. Leave exactly one block for the rule (your reviewer checks that the old one is gone), and do not turn the rule off again. If the finding is in someone else's module, tell them in the PR and make the smallest fix; a reviewer from that portion approves it.
 
-> **✅ Checkpoint: step 1 (tflint)**
-> Save `.tflint.hcl` and `milestones.txt`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Step 1 should now be ✅. It confirms the rule is enabled on one line, written exactly as above. Step 2 (wiring) builds nothing and should already be ✅ if every earlier portion finished; if it is ❌, its message lists the module outputs that are still placeholders, so ask that portion's owner to finish. Step 3 stays ❌ until you build it.
-> Then format, commit, push, and open your draft pull request (the `gh pr create` line is only needed this once):
-> ```bash
-> terraform fmt -recursive
-> git add -A && git commit -m "feat(int): turn on the unused declarations lint rule" && git push
-> gh pr create --fill --draft
-> ```
-> The push runs the same check on GitHub.
+**✅ Checkpoint: step 1 (tflint)**
+Save `.tflint.hcl` and `milestones.txt`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+
+```bash
+scripts/check-local.sh
+```
+
+Step 1 should now be ✅. It confirms the rule is enabled on one line, written exactly as above. Step 2 (wiring) builds nothing and should already be ✅ if every earlier portion finished; if it is ❌, its message lists the module outputs that are still placeholders, so ask that portion's owner to finish. Step 3 stays ❌ until you build it.
+
+Then format, commit, push, and open your draft pull request (the `gh pr create` line is only needed this once):
+
+```bash
+terraform fmt -recursive
+git add -A && git commit -m "feat(int): turn on the unused declarations lint rule" && git push
+gh pr create --fill --draft
+```
+
+The push runs the same check on GitHub.
 
 ## Part 2: The wiring gate (nothing to build)
 
@@ -95,18 +100,23 @@ Write it for someone who didn't build the system. Name the Terraform outputs and
 
 **Docs:** [Runbooks in the AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/ops_ready_to_support_use_runbooks.html) · [Markdown tables](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables)
 
-> **✅ Checkpoint: step 3 (runbook)**
-> Save `README.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Step 3 should now be ✅. It confirms a Runbook heading, the four subsections, a table row for each of the seven reasons, and mentions of `scripts/redrive.sh`, `scan_dlq_name`, and `router_failures_queue_url`. It can't judge whether the advice is right; your reviewer does. Every step should now be ✅ and the summary should say `👍 INT passed.` The summary covers the numbered steps only: tflint runs after them, so also check that the run as a whole is green on your PR. Next: "Done when" below.
-> Then format, commit, and push:
-> ```bash
-> terraform fmt -recursive
-> git add -A && git commit -m "docs(int): add the runbook" && git push
-> ```
-> The push runs the same check on GitHub.
+**✅ Checkpoint: step 3 (runbook)**
+Save `README.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+
+```bash
+scripts/check-local.sh
+```
+
+Step 3 should now be ✅. It confirms a Runbook heading, the four subsections, a table row for each of the seven reasons, and mentions of `scripts/redrive.sh`, `scan_dlq_name`, and `router_failures_queue_url`. It can't judge whether the advice is right; your reviewer does. Every step should now be ✅ and the summary should say `👍 INT passed.` The summary covers the numbered steps only: tflint runs after them, so also check that the run as a whole is green on your PR. Next: "Done when" below.
+
+Then format, commit, and push:
+
+```bash
+terraform fmt -recursive
+git add -A && git commit -m "docs(int): add the runbook" && git push
+```
+
+The push runs the same check on GitHub.
 
 ## Check it
 
@@ -334,3 +344,15 @@ gh pr ready
 ```
 
 When this merges, the project is built. [SHIP](SHIP.md) is the last milestone: it removes the build scaffolding and rewrites the README for a reader. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.
+
+## After the merge
+
+Merge the pull request on GitHub, then clean up the branch:
+
+```bash
+git switch main && git pull
+git branch -D int-end-to-end
+git fetch --prune
+```
+
+`-D` rather than `-d` because this repo is squash-only: the branch's commits are never in `main` as themselves, so `git branch -d` refuses. The remote branch is already gone — `delete_branch_on_merge` removes it at merge — so `git fetch --prune` only clears the stale `origin/int-end-to-end` ref.
