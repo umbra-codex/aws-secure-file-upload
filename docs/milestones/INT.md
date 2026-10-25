@@ -176,6 +176,8 @@ Run all the blocks below in **one terminal window**, in order: the later command
 ```bash
 terraform init -backend-config=backend.hcl
 terraform apply
+exec > >(tee ~/int-done.txt) 2>&1
+set -x
 API=$(terraform output -raw api_url); API=${API%/}
 INCOMING=$(terraform output -raw incoming_bucket_name)
 APPROVED=$(terraform output -raw approved_bucket_name)
@@ -344,6 +346,15 @@ gh pr ready
 ```
 
 When this merges, the project is built. [SHIP](SHIP.md) is the last milestone: it removes the build scaffolding and rewrites the README for a reader. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.
+
+
+**Evidence for the pull request.** `~/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace:
+
+```bash
+{ echo '## Done when'; echo '```'; sed -E '/^\+ (tofu|terraform) destroy/,$d' ~/int-done.txt; echo '```'; } > ~/int-pr.md
+gh pr edit --body-file ~/int-pr.md
+set +x
+```
 
 ## After the merge
 
