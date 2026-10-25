@@ -15,6 +15,22 @@ cd "$(dirname "$0")/.."
 bad=0
 blocks=0
 
+# The briefs carry plain checkpoint headings; the rules below are written
+# against the quoted form they used to have. Normalise a copy into a temp dir so
+# one set of rules reads both shapes, and so a plain heading cannot become a
+# silent skip that passes CI while checking nothing.
+tmp=$(mktemp -d)
+trap 'rm -r "$tmp"' EXIT
+mkdir -p "$tmp/docs/milestones"
+for src in docs/milestones/*.md; do
+  [ -f "$src" ] || continue
+  awk '
+    /^## / { inb = 0 }
+    /^\*\*.*[Cc]heckpoint: steps? / { inb = 1 }
+    { if (inb) { if ($0 == "") print ">"; else print "> " $0 } else print }
+  ' "$src" > "$tmp/docs/milestones/$(basename "$src")"
+done
+
 # The block that just ended, judged. Uses the loop's own variables.
 close_block() {
   if [ "$seen" -eq 0 ]; then
@@ -27,8 +43,9 @@ close_block() {
   fi
 }
 
-for brief in docs/milestones/*.md; do
-  [ -f "$brief" ] || continue
+for bf in "$tmp"/docs/milestones/*.md; do
+  [ -f "$bf" ] || continue
+  brief="docs/milestones/$(basename "$bf")"
   inblock=0
   start=0
   seen=0
@@ -99,7 +116,7 @@ for brief in docs/milestones/*.md; do
         fi
         ;;
     esac
-  done < "$brief"
+  done < "$bf"
   if [ "$inblock" -eq 1 ]; then close_block; fi
 done
 
