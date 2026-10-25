@@ -67,19 +67,24 @@ Do not carry over any sentence addressed to a builder: no schedule, no branch na
 
 **Docs:** [Diátaxis: architecture documentation](https://diataxis.fr/explanation/) · [Mermaid flowchart syntax](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams) · [AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html)
 
-> **✅ Checkpoint: step 1 (architecture)**
-> Save `docs/architecture.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Step 1 should now be ✅. It confirms the title, the five section headings, the Mermaid flowchart, a table row for the DynamoDB status, the file-key contract as written, and the relative link to the decision log. It cannot tell whether the prose is any good; your reviewer reads it. Steps 2 to 4 stay ❌ until you build them. Note that `docs/overview.md` still exists, which the check in Part 5 (`scripts/ship-check.sh`) will list under `scaffolding` until you delete it; that is expected at this point.
-> Then format, commit, push, and open your draft pull request (the `gh pr create` line is only needed this once):
-> ```bash
-> terraform fmt -recursive
-> git add -A && git commit -m "docs(ship): add the architecture note" && git push
-> gh pr create --fill --draft
-> ```
-> The push runs the same check on GitHub.
+**✅ Checkpoint: step 1 (architecture)**
+Save `docs/architecture.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+
+```bash
+scripts/check-local.sh
+```
+
+Step 1 should now be ✅. It confirms the title, the five section headings, the Mermaid flowchart, a table row for the DynamoDB status, the file-key contract as written, and the relative link to the decision log. It cannot tell whether the prose is any good; your reviewer reads it. Steps 2 to 4 stay ❌ until you build them. Note that `docs/overview.md` still exists, which the check in Part 5 (`scripts/ship-check.sh`) will list under `scaffolding` until you delete it; that is expected at this point.
+
+Then format, commit, push, and open your draft pull request (the `gh pr create` line is only needed this once):
+
+```bash
+terraform fmt -recursive
+git add -A && git commit -m "docs(ship): add the architecture note" && git push
+gh pr create --fill --draft
+```
+
+The push runs the same check on GitHub.
 
 ## Part 2: The README (`README.md`)
 
@@ -107,18 +112,23 @@ Keep the two notes that answer a reader's first objections: why bucket names inc
 
 **Docs:** [About READMEs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes) · [Adding a workflow status badge](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/adding-a-workflow-status-badge) · [Making a good README](https://docs.github.com/en/repositories/creating-and-managing-repositories/best-practices-for-repositories)
 
-> **✅ Checkpoint: step 2 (readme)**
-> Save `README.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Step 2 should now be ✅. It confirms the badge URL, the seven section headings, a link to `docs/architecture.md`, a link to `evidence/`, at least one fenced `bash` block, and the product-test command `terraform test`. It cannot judge the writing, and it cannot see whether the five-minute test passes; your reviewer does both.
-> Then format, commit, and push:
-> ```bash
-> terraform fmt -recursive
-> git add -A && git commit -m "docs(ship): rewrite the README for a stranger" && git push
-> ```
-> The push runs the same check on GitHub.
+**✅ Checkpoint: step 2 (readme)**
+Save `README.md`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+
+```bash
+scripts/check-local.sh
+```
+
+Step 2 should now be ✅. It confirms the badge URL, the seven section headings, a link to `docs/architecture.md`, a link to `evidence/`, at least one fenced `bash` block, and the product-test command `terraform test`. It cannot judge the writing, and it cannot see whether the five-minute test passes; your reviewer does both.
+
+Then format, commit, and push:
+
+```bash
+terraform fmt -recursive
+git add -A && git commit -m "docs(ship): rewrite the README for a stranger" && git push
+```
+
+The push runs the same check on GitHub.
 
 ## Part 3: The proof and the paperwork (`evidence/`, `docs/decisions.md`, `LICENSE`)
 
@@ -145,18 +155,23 @@ Each row is one sentence in the "why" column. If a decision changed later, add a
 
 **Docs:** [Adding a license to a repository](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-license-to-a-repository) · [Choose a license](https://choosealicense.com/) · [Architecture decision records](https://adr.github.io/)
 
-> **✅ Checkpoint: step 3 (proof)**
-> Save the three files, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Step 3 should now be ✅. It confirms `LICENSE` starts with the MIT line, `docs/decisions.md` has a title, a table, and a date, and `evidence/README.md` has a title, a table, a link to a run, and the scan verdict the malware test produced. Step 4 stays ❌ until you build it.
-> Then format, commit, and push:
-> ```bash
-> terraform fmt -recursive
-> git add -A && git commit -m "docs(ship): add the evidence, the decision log, and the license" && git push
-> ```
-> The push runs the same check on GitHub.
+**✅ Checkpoint: step 3 (proof)**
+Save the three files, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+
+```bash
+scripts/check-local.sh
+```
+
+Step 3 should now be ✅. It confirms `LICENSE` starts with the MIT line, `docs/decisions.md` has a title, a table, and a date, and `evidence/README.md` has a title, a table, a link to a run, and the scan verdict the malware test produced. Step 4 stays ❌ until you build it.
+
+Then format, commit, and push:
+
+```bash
+terraform fmt -recursive
+git add -A && git commit -m "docs(ship): add the evidence, the decision log, and the license" && git push
+```
+
+The push runs the same check on GitHub.
 
 ## Part 4: The normal workflow (`.github/workflows/ci.yml`)
 
@@ -183,18 +198,23 @@ From this commit on, a push runs this workflow. `scripts/remote-check.sh` follow
 
 **Docs:** [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions) · [Events that trigger workflows](https://docs.github.com/en/actions/reference/events-that-trigger-workflows) · [setup-terraform](https://github.com/hashicorp/setup-terraform) · [setup-tflint](https://github.com/terraform-linters/setup-tflint)
 
-> **✅ Checkpoint: step 4 (workflow)**
-> Save `.github/workflows/ci.yml`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Step 4 should now be ✅. It confirms the workflow runs on `push` and on `pull_request`, and that every command the table above lists is in the file together with the step that makes it work: the checkout, the Terraform and tflint setup, `terraform init`, the formatting check, `terraform validate`, `tflint --init` and `tflint --recursive`, the secret scan, and `terraform test`. Every numbered step should now be ✅ and the summary should say `👍 SHIP passed.` This is the last commit where the milestone runner still runs; the next part deletes it.
-> Then format, commit, and push:
-> ```bash
-> terraform fmt -recursive
-> git add -A && git commit -m "ci(ship): run formatting, validation, lint, the secret scan, and the tests on every push" && git push
-> ```
-> The push runs the new workflow, not the milestone check. Follow it with `gh run watch --exit-status` or under **Actions**.
+**✅ Checkpoint: step 4 (workflow)**
+Save `.github/workflows/ci.yml`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
+
+```bash
+scripts/check-local.sh
+```
+
+Step 4 should now be ✅. It confirms the workflow runs on `push` and on `pull_request`, and that every command the table above lists is in the file together with the step that makes it work: the checkout, the Terraform and tflint setup, `terraform init`, the formatting check, `terraform validate`, `tflint --init` and `tflint --recursive`, the secret scan, and `terraform test`. Every numbered step should now be ✅ and the summary should say `👍 SHIP passed.` This is the last commit where the milestone runner still runs; the next part deletes it.
+
+Then format, commit, and push:
+
+```bash
+terraform fmt -recursive
+git add -A && git commit -m "ci(ship): run formatting, validation, lint, the secret scan, and the tests on every push" && git push
+```
+
+The push runs the new workflow, not the milestone check. Follow it with `gh run watch --exit-status` or under **Actions**.
 
 ## Part 5: The removal
 
@@ -277,21 +297,27 @@ Do **not** add `SHIP` to `milestones.txt`. This pull request deletes that file, 
 
 **Docs:** [GitHub: about repository licenses](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-license-on-a-repository) · [Removing sensitive data from a repository](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository)
 
-> **✅ Checkpoint: step 5 (the removal)**
-> Run the milestone check one last time before you touch anything. Every numbered step must be ✅, because this is the last moment the check can run at all:
-> ```bash
-> scripts/check-local.sh
-> ```
-> Then run the ship check and keep its output; it fails on purpose and its list is the work:
-> ```bash
-> scripts/ship-check.sh
-> ```
-> Delete the paths in the first table, scrub the files that stay, and run it again until it prints `SHIP: clean. No scaffolding, learner text, local paths, or secrets.` The local check runs once here, before anything is deleted, because this part removes the command itself; after the first commit there is nothing left for it to read. Then commit the two steps separately:
-> ```bash
-> git add -A && git commit -m "chore(ship): remove the build scaffolding"
-> git add -A && git commit -m "chore(ship): retire the milestone runner" && git push
-> ```
-> The push runs the normal workflow. It must be green: if it is red, the removed files were load-bearing, and the failure names what to put back.
+**✅ Checkpoint: step 5 (the removal)**
+Run the milestone check one last time before you touch anything. Every numbered step must be ✅, because this is the last moment the check can run at all:
+
+```bash
+scripts/check-local.sh
+```
+
+Then run the ship check and keep its output; it fails on purpose and its list is the work:
+
+```bash
+scripts/ship-check.sh
+```
+
+Delete the paths in the first table, scrub the files that stay, and run it again until it prints `SHIP: clean. No scaffolding, learner text, local paths, or secrets.` The local check runs once here, before anything is deleted, because this part removes the command itself; after the first commit there is nothing left for it to read. Then commit the two steps separately:
+
+```bash
+git add -A && git commit -m "chore(ship): remove the build scaffolding"
+git add -A && git commit -m "chore(ship): retire the milestone runner" && git push
+```
+
+The push runs the normal workflow. It must be green: if it is red, the removed files were load-bearing, and the failure names what to put back.
 
 ## Check it
 
@@ -430,3 +456,15 @@ gh pr ready
 ```
 
 A teammate approves, and it merges. After the merge, close the "SHIP is ready" issue by hand if one was opened, set the repository's social preview image if you have one, and check the pinned card on your profile. The project is done.
+
+## After the merge
+
+Merge the pull request on GitHub, then clean up the branch:
+
+```bash
+git switch main && git pull
+git branch -D ship
+git fetch --prune
+```
+
+`-D` rather than `-d` because this repo is squash-only: the branch's commits are never in `main` as themselves, so `git branch -d` refuses. The remote branch is already gone — `delete_branch_on_merge` removes it at merge — so `git fetch --prune` only clears the stale `origin/ship` ref.
