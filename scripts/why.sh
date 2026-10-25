@@ -84,7 +84,7 @@ pointer() { # $1 = milestone, $2 = step
   brief="docs/milestones/$1.md"
   [ -f "$brief" ] || return 0
   info=$(awk -v want="$2" '
-    /^> \*\*.*Checkpoint: steps? / {
+    /^>? ?\*\*.*Checkpoint: steps? / {
       head = $0
       sub(/^.*Checkpoint:[ \t]*/, "", head)
       sub(/\(.*/, "", head)
