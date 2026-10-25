@@ -1,7 +1,7 @@
 # SHIP: Ship the repository
 
 | | |
-|---|---|---|
+|---|---|
 | **Portion** | SHIP: Ship (the lead, like INT) |
 | **Branch** | `ship` |
 | **Depends on** | INT (the runbook and the end-to-end test) merged |
