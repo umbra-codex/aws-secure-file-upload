@@ -1,37 +1,31 @@
 output "incoming_bucket_name" {
-  description = "Name of the Incoming bucket."
-  # PLACEHOLDER: replace with a reference to the real resource in A1.
-  value = "placeholder-incoming"
+  description = "Bucket that receives raw uploads."
+  value       = module.incoming.bucket_name
 }
 
 output "incoming_bucket_arn" {
   description = "ARN of the Incoming bucket."
-  # PLACEHOLDER: replace with a reference to the real resource in A1.
-  value = "arn:aws:s3:::placeholder-incoming"
+  value       = module.incoming.bucket_arn
 }
 
 output "approved_bucket_name" {
-  description = "Name of the Approved bucket."
-  # PLACEHOLDER: replace with a reference to the real resource in A1.
-  value = "placeholder-approved"
+  description = "Bucket that holds clean, validated files"
+  value       = module.approved.bucket_name
 }
 
 output "approved_bucket_arn" {
   description = "ARN of the Approved bucket."
-  # PLACEHOLDER: replace with a reference to the real resource in A1.
-  value = "arn:aws:s3:::placeholder-approved"
+  value       = module.approved.bucket_arn
 }
 
 output "quarantine_bucket_name" {
-  description = "Name of the Quarantine bucket."
-  # PLACEHOLDER: replace with a reference to the real resource in A1.
-  value = "placeholder-quarantine"
+  description = "Bucket that holds rejected files."
+  value       = module.quarantine.bucket_name
 }
 
 output "quarantine_bucket_arn" {
   description = "ARN of the Quarantine bucket."
-  # PLACEHOLDER: replace with a reference to the real resource in A1.
-  value = "arn:aws:s3:::placeholder-quarantine"
+  value       = module.quarantine.bucket_arn
 }
 
 output "table_name" {
