@@ -130,6 +130,8 @@ echo "$BUCKET"
 
 In any region other than `us-east-1`, add `--create-bucket-configuration LocationConstraint=<region>` to `create-bucket`.
 
+`scripts/bootstrap-state.sh` runs steps 3 and 4 for you: it reads the account from AWS, creates the bucket if it is missing, enables versioning and blocks public access, writes `backend.hcl`, copies `terraform.tfvars`, and fills `owner` from `gh`. Safe to re-run, and nothing lives in a shell variable, so a new terminal costs nothing.
+
 ### 4. Configure and initialize
 
 ```bash

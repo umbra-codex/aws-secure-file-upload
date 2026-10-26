@@ -404,6 +404,8 @@ Expected: two commits, the runner's retirement at the top and the removal under 
 **Block 2: after the merge, a fresh clone builds from the README alone.** Run this on `main`: `git clone` with no `-b` gives you `main`, which is what a stranger gets, and `main` carries the milestone only after the merge. Clone into an empty folder, so nothing from your working copy helps, and follow only what the README says. From that folder:
 
 ```bash
+exec > >(tee ~/ship-done.txt) 2>&1
+set -x
 git clone https://github.com/umbra-codex/aws-secure-file-upload ~/ship-check-clone
 cd ~/ship-check-clone
 cp terraform.tfvars.example terraform.tfvars    # fill in project_name, owner, alert_email
@@ -456,6 +458,15 @@ gh pr ready
 ```
 
 A teammate approves, and it merges. After the merge, close the "SHIP is ready" issue by hand if one was opened, set the repository's social preview image if you have one, and check the pinned card on your profile. The project is done.
+
+
+**Evidence for the pull request.** `~/ship-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace:
+
+```bash
+{ echo '## Done when'; echo '```'; sed -E '/^\+ (tofu|terraform) destroy/,$d' ~/ship-done.txt; echo '```'; } > ~/ship-pr.md
+gh pr edit --body-file ~/ship-pr.md
+set +x
+```
 
 ## After the merge
 
