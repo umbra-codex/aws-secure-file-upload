@@ -45,13 +45,13 @@ One dashboard showing:
 
 | Outputs (others depend on these) | Inputs |
 |---|---|
-| `upload_role_arn` (B1); `api_url`, `api_id`, `api_execution_arn` (B2; A4 attaches the status route to your API) | `project_name`, `incoming_bucket_name/arn`, `table_name/arn`, `allowed_types`, `max_size_mb`; for B3: `router_function_name`, `dlq_name`, `router_failures_queue_name` |
+| `upload_role_arn` (B1); `api_url`, `api_id`, `api_execution_arn` (B2; A4 attaches the status route to your API) | `project_name`, `incoming_bucket_name/arn`, `table_name/arn`, `allowed_types`, `max_size_mb`; for B3: `router_function_name`, `dlq_name`, `router_failures_queue_name`, `cors_allowed_origins` |
 
 ## Your permissions
 
 | Role | Actions | Resource |
 |---|---|---|
-| upload role | `s3:PutObject` | `incoming/uploads/*` |
+| upload role | `s3:PutObject` | `<incoming bucket ARN>/uploads/*` |
 | upload role | `dynamodb:PutItem` | the table |
 | upload role | `logs:CreateLogStream`, `logs:PutLogEvents` | its log group |
 

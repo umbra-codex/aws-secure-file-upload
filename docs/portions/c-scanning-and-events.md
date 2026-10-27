@@ -22,12 +22,12 @@ Briefs: [C1](../milestones/C1.md) · [C2](../milestones/C2.md) · [C3](../milest
 
 These come from the AWS docs, not memory:
 
-- **Malware Protection for S3 runs as an independent feature.** It needs no GuardDuty detector, so it won't clash with a teammate who already has GuardDuty on. With no detector, malware produces no GuardDuty finding; the EventBridge event and the object tag are the signal.
-- **Every scan result goes to the default EventBridge bus** with `source: aws.guardduty` and `detail-type: GuardDuty Malware Protection Object Scan Result`.
+- **Malware Protection for S3 runs as an independent feature.** It needs no GuardDuty detector (the switch that turns on GuardDuty's account-wide threat detection), so it won't clash with a teammate who already has GuardDuty on. With no detector, malware produces no GuardDuty finding; the EventBridge event and the object tag are the signal.
+- **Every scan result goes to the default EventBridge bus** (the one every AWS account already has) with `source: aws.guardduty` and `detail-type: GuardDuty Malware Protection Object Scan Result`.
 - **The result is in `detail.scanResultDetails.scanResultStatus`:** `NO_THREATS_FOUND`, `THREATS_FOUND`, `UNSUPPORTED` (skipped, e.g. password-protected), `ACCESS_DENIED` (skipped, e.g. SSE-C), or `FAILED`.
 - **When the plan itself breaks,** GuardDuty sends `GuardDuty Malware Protection Resource Status Error`.
 - **The plan's IAM role:** copy the trust policy and permissions from AWS's "Adding IAM policy permissions" page for Malware Protection for S3. It includes the object-tagging permission. Don't write it from memory.
-- **GuardDuty can't scan SSE-C objects,** which is why the project uses SSE-S3.
+- **GuardDuty can't scan SSE-C objects** (encrypted with a key the uploader supplies and AWS never stores), which is why the project uses SSE-S3 (S3 encrypts every object with keys it manages).
 
 ## Rules for the rule (C2)
 
