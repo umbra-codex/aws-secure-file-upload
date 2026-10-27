@@ -23,5 +23,5 @@ __pycache__/
 .idea/
 .vscode/
 
-# Done-when evidence (the briefs write it here)
+# Local evidence files, never committed
 .evidence/

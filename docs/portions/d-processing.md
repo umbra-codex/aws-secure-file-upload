@@ -69,10 +69,10 @@ D1 gives the role the last row. D2 adds the rest as a second policy.
 
 | Actions | Resource |
 |---|---|
-| `s3:GetObject`, `s3:GetObjectVersion`, `s3:GetObjectTagging`, `s3:GetObjectVersionTagging` | `incoming/*` |
+| `s3:GetObject`, `s3:GetObjectVersion`, `s3:GetObjectTagging`, `s3:GetObjectVersionTagging` | every object in Incoming (its ARN plus `/*`) |
 | `s3:ListBucket` | the Incoming bucket itself. Without it, S3 answers a missing object with 403 instead of 404, and "the version is gone" can't be told from "not allowed" |
-| `s3:DeleteObjectVersion` | `incoming/*` |
-| `s3:PutObject`, `s3:PutObjectTagging` | `approved/*`, `quarantine/*` |
+| `s3:DeleteObjectVersion` | every object in Incoming (its ARN plus `/*`) |
+| `s3:PutObject`, `s3:PutObjectTagging` | every object in Approved and in Quarantine |
 | `dynamodb:GetItem`, `dynamodb:UpdateItem` | the table |
 | `sqs:SendMessage` | `router-failures` |
 | `logs:CreateLogStream`, `logs:PutLogEvents` | your log group |

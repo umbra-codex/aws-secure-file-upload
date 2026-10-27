@@ -169,7 +169,7 @@ Each brief lists the milestones it depends on. Every brief is already in `docs/m
 
 ## Cost and cleanup
 
-Everything here is pay-per-use, and an idle stack costs close to nothing. GuardDuty Malware Protection bills per GB scanned, so test with small files. When you're done testing for the day:
+Everything here is pay-per-use, and an idle stack costs close to nothing. GuardDuty Malware Protection bills per GB scanned and per object evaluated, so test with a few small files. When you're done testing for the day:
 
 ```bash
 terraform destroy
