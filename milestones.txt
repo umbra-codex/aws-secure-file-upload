@@ -3,3 +3,4 @@
 # INT: re-enable terraform_unused_declarations in .tflint.hcl.
 M0
 A1
+A2
