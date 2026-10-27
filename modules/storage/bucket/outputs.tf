@@ -27,3 +27,8 @@ output "cors_enabled" {
   description = "Whether a CORS configuration was created."
   value       = length(aws_s3_bucket_cors_configuration.this) > 0
 }
+
+output "expiration_days" {
+  description = "Days until objects expire, or null if they never do."
+  value       = var.expiration_days
+}
