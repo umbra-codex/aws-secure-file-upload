@@ -6,5 +6,5 @@ docs/decisions.md | ^\| | needs a table of decisions
 docs/decisions.md | 2026- | must date each decision
 evidence/README.md | ^# [^#[:space:]] | must start with a title
 evidence/README.md | ^\| | needs a table: one row per test
-evidence/README.md | actions/runs/ | must link the run that produced the evidence
+evidence/README.md | /pull/ | must link the pull request that holds the transcript
 evidence/README.md | THREATS_FOUND | must name the verdict the malware test produced

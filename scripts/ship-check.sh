@@ -12,10 +12,11 @@
 # It reads only the text files of the tree, and prints a file and a line number,
 # never the line itself, so its output is safe to paste anywhere.
 #
-# What it skips: .git/, .terraform*/, node_modules/, scripts/, and
-# .github/scripts/. The last commit of the milestone deletes the last two, and a
-# check cannot ask for the removal of the folder it is running from. Everything
-# else in the repository is read, including the workflows.
+# What it skips: .git/, .terraform*/, node_modules/, .evidence/, scripts/, and
+# .github/scripts/. The last commit of the milestone deletes the build tools in
+# the last two, and a check cannot ask for the removal of the folder it is running
+# from. .evidence/ holds a builder's own gitignored evidence files.
+# Everything else in the repository is read, including the workflows.
 #
 # No bash 4 features: this runs on the learner's machine, which may have bash 3.2.
 set -uo pipefail
@@ -90,7 +91,7 @@ files() {
   ( cd "$root" || exit 1
     find . -type f 2>/dev/null | sed 's|^\./||' | while IFS= read -r rel; do
       case "$rel" in
-        .git/*|.terraform|.terraform/*|.terraform-*|.terraform-*/*|node_modules/*|scripts/*|.github/scripts/*) continue ;;
+        .git/*|.evidence|.evidence/*|.terraform|.terraform/*|.terraform-*|.terraform-*/*|node_modules/*|scripts/*|.github/scripts/*) continue ;;
       esac
       printf '%s\n' "$rel"
     done | sort )
