@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# The milestone check that CI runs on every push. Not meant to be run by hand:
-# push your branch, or run scripts/remote-check.sh to re-run it on GitHub.
+# The milestone check that CI runs on every push. On your machine, run it through
+# scripts/check-local.sh; scripts/remote-check.sh re-runs it on GitHub.
 #
 #   .github/scripts/check.sh A1        one milestone (plus fmt and validate)
 #   .github/scripts/check.sh all       every milestone listed in milestones.txt

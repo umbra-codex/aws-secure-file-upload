@@ -457,15 +457,16 @@ gh pr edit --title "chore(ship): ship the repository"
 gh pr ready
 ```
 
-A teammate approves, and it merges. After the merge, close the "SHIP is ready" issue by hand if one was opened, set the repository's social preview image if you have one, and check the pinned card on your profile. The project is done.
+A teammate reviews it, and you merge it with your admin override. After the merge, close the "SHIP is ready" issue by hand if one was opened, set the repository's social preview image if you have one, and check the pinned card on your profile. The project is done.
 
 
-**Evidence for the pull request.** `~/ship-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace:
+**Evidence for the pull request.** `~/ship-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
 
 ```bash
-{ echo '## Done when'; echo '```'; sed -E '/^\+ (tofu|terraform) destroy/,$d' ~/ship-done.txt; echo '```'; } > ~/ship-pr.md
+{ echo '## Done-when output'; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' ~/ship-done.txt; echo '```'; } > ~/ship-pr.md
 gh pr edit --body-file ~/ship-pr.md
 set +x
+exec > /dev/tty 2>&1
 ```
 
 ## After the merge

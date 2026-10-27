@@ -94,7 +94,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.terraform.d/plugin-cache
-          key: tf-providers-${{ runner.os }}-${{ hashFiles('.terraform.lock.hcl') }}
+          key: tf-providers-${{ runner.os }}-${{ hashFiles('**/versions.tf') }}
 
       # fmt, init, validate, then the spec tests: this branch's milestone plus
       # every milestone already merged (regression). Results go to the run summary.

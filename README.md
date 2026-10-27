@@ -89,7 +89,7 @@ M0 (repo foundation) and INT (integration) are shared milestones with one owner 
 - **Re-run on demand.** `scripts/remote-check.sh` (or `scripts/remote-check.sh A1`) re-runs the check on GitHub for your pushed branch and streams the result to your terminal. It uses the [GitHub CLI](https://cli.github.com); the raw command is `gh workflow run ci.yml --ref <branch> -f milestone=A1`, then `gh run watch`.
 - **Register your milestone.** Add its ID to `milestones.txt` in the same PR. CI re-checks every listed milestone on every PR, so nobody can break someone else's merged work without CI catching it.
 - **Prove it in your account.** Each brief ends with a "Done when" step you run against real AWS. Paste its output into the PR.
-- **One approval to merge.** Review means reading the diff against the brief, not only seeing a green check.
+- **One approval to merge, from the lead.** Every PR edits `milestones.txt`, which CODEOWNERS gives to the lead, and the lead's own PRs merge with the admin override. Review means reading the diff against the brief, not only seeing a green check.
 - **The test harness is lead-owned.** `tests/`, `scripts/`, `milestones.txt`, and `.github/` (which holds the check itself) are covered by CODEOWNERS, so changes there need the lead's review. A syntax error in any test file breaks every milestone's check, which is one reason these files are protected.
 
 ## Getting started
@@ -145,7 +145,7 @@ Both copied files are gitignored, so they never reach the repo.
 
 ## Milestones
 
-Each brief lists the milestones it depends on. Briefs appear in `docs/milestones/` as each milestone opens.
+Each brief lists the milestones it depends on. Every brief is already in `docs/milestones/`.
 
 | ID | What | Brief |
 |---|---|---|
@@ -201,4 +201,4 @@ Every service here (S3, Lambda, API Gateway, DynamoDB, EventBridge, GuardDuty, S
 
 ## A note for OpenTofu users
 
-`.terraform.lock.hcl` should be the one Terraform generates. `tofu init` rewrites it for the OpenTofu registry, so don't commit lock-file changes from `tofu`.
+`.gitignore` keeps `.terraform.lock.hcl` out of git, so the lock file `tofu init` writes stays on your machine. Pull requests still have to pass the Terraform check in CI.
