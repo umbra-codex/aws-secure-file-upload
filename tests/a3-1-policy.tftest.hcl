@@ -101,12 +101,12 @@ run "bucket_policy_with_reader_lock" {
     condition = length([
       for st in data.aws_iam_policy_document.this.statement : st
       if st.sid == "DenyReadsExceptAllowedReader" && st.effect == "Deny" &&
-      toset(st.actions) == toset(["s3:GetObject"]) &&
+      toset(st.actions) == toset(["s3:GetObject", "s3:GetObjectVersion"]) &&
       toset(st.resources) == toset(["arn:aws:s3:::unit-test-bucket/*"]) &&
       length(st.principals) == 1 && alltrue([for p in st.principals : p.type == "*" && toset(p.identifiers) == toset(["*"])]) &&
       length(st.condition) == 1 && alltrue([for c in st.condition : c.test == "StringNotEquals" && c.variable == "aws:PrincipalArn" && toset(c.values) == toset(["arn:aws:iam::210987654321:role/demo-router"])])
     ]) == 1
-    error_message = "Statement DenyReadsExceptAllowedReader must Deny s3:GetObject on the bucket ARN followed by /*, for principal type \"*\" identifiers [\"*\"], with condition StringNotEquals aws:PrincipalArn = the allowed_reader_arn variable."
+    error_message = "Statement DenyReadsExceptAllowedReader must Deny s3:GetObject and s3:GetObjectVersion on the bucket ARN followed by /*, for principal type \"*\" identifiers [\"*\"], with condition StringNotEquals aws:PrincipalArn = the allowed_reader_arn variable."
   }
 
   assert {

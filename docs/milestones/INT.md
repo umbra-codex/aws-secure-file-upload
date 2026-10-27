@@ -52,7 +52,7 @@ The finished line has the shape `rule "<name>" { enabled = <value> }`. Then open
 
 **What the rule does.** It reports a `variable`, a `locals` entry, or a `data` source that is declared and never read. Terraform itself doesn't mind an unused one, so without this rule, leftovers pile up unseen.
 
-**How you see the result.** `tflint` is not one of the numbered steps. It is a separate step of the run on GitHub (Actions, the newest run) that comes after the check, and GitHub skips it while any numbered step is ❌. So you won't see its findings until step 3 is ✅: finish the runbook, then open the **tflint** step of that run. On a correct build it prints nothing. If it reports `variable "x" is declared but not used`, a milestone left something behind. Fix it in this PR: delete the declaration, along with any argument that only existed to feed it, or use it if it was meant to be used. Leave exactly one block for the rule (your reviewer checks that the old one is gone), and do not turn the rule off again. If the finding is in someone else's module, tell them in the PR and make the smallest fix; a reviewer from that portion approves it.
+**How you see the result.** `tflint` is not one of the numbered steps. It is a separate step of the run on GitHub (Actions, the newest run) that comes after the check, and GitHub skips it while any numbered step is ❌. So you won't see its findings until step 3 is ✅: finish the runbook, then open the **tflint** step of that run. On a correct build it prints nothing. If it reports `variable "x" is declared but not used`, a milestone left something behind. Fix it in this PR: delete the declaration, along with any argument that only existed to feed it, or use it if it was meant to be used. Leave exactly one block for the rule (your reviewer checks that the old one is gone), and do not turn the rule off again. If the finding is in someone else's module, tell them in the PR and make the smallest fix; ask a reviewer from that portion to review it.
 
 **✅ Checkpoint: step 1 (tflint)**
 Save `.tflint.hcl` and `milestones.txt`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
@@ -171,13 +171,15 @@ This is the real test. It needs the AWS CLI v2 (`aws --version` should start wit
 
 Run all the blocks below in **one terminal window**, in order: the later commands use variables and functions the earlier ones define. **Everyone** runs blocks 1, 3, 5, and 7 (the setup, tests 1 and 2, test 7, and the cleanup). **The INT lead** runs every block and pastes the whole output into the PR. Test 8 needs at least 75 minutes, so the lead starts it right after block 1.
 
+Run the commands one at a time. A command that runs over several lines (ending in `\`, or a `{ ... }` block) goes in whole. `apply` and `destroy` each stop and ask you to type `yes`, and `destroy` is finished when it prints `Destroy complete!`.
+
 **Block 1: setup and helpers (everyone).** From the repo root:
 
 ```bash
 terraform init -backend-config=backend.hcl
-terraform apply
 exec > >(tee ~/int-done.txt) 2>&1
 set -x
+terraform apply
 API=$(terraform output -raw api_url); API=${API%/}
 INCOMING=$(terraform output -raw incoming_bucket_name)
 APPROVED=$(terraform output -raw approved_bucket_name)
@@ -348,12 +350,13 @@ gh pr ready
 When this merges, the project is built. [SHIP](SHIP.md) is the last milestone: it removes the build scaffolding and rewrites the README for a reader. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.
 
 
-**Evidence for the pull request.** `~/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace:
+**Evidence for the pull request.** `~/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
 
 ```bash
-{ echo '## Done when'; echo '```'; sed -E '/^\+ (tofu|terraform) destroy/,$d' ~/int-done.txt; echo '```'; } > ~/int-pr.md
+{ cat .github/pull_request_template.md; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' ~/int-done.txt; echo '```'; } > ~/int-pr.md
 gh pr edit --body-file ~/int-pr.md
 set +x
+exec > /dev/tty 2>&1
 ```
 
 ## After the merge

@@ -68,6 +68,6 @@ cat <<'EOF'
 
 Next:
   1. Set owner and alert_email in terraform.tfvars (project_name is already set).
-  2. tofu init -reconfigure -backend-config=backend.hcl
-  3. tofu plan
+  2. terraform init -backend-config=backend.hcl
+  3. terraform plan
 EOF

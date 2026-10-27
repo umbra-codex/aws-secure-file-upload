@@ -20,11 +20,11 @@ We kept that flow and filled the gaps a design review found, checking each chang
 | A `GET /status/{upload_id}` endpoint | The client had no way to learn the result | Operational excellence |
 | Two failure queues (EventBridge DLQ and Lambda 2's failure queue) plus a redrive script | Failed events were lost silently; now they're captured and can be replayed | Reliability |
 | Least-privilege IAM role per Lambda; bucket policies deny non-HTTPS and lock Quarantine | The original diagram had no security controls | Security |
-| Abandoned uploads expire: a row still `PENDING` 75 minutes after creation is deleted by DynamoDB TTL. Incoming empties after 1 day, Quarantine after 30 | Rows and files clean themselves up with no job to run, while finished uploads stay queryable | Cost optimization, Sustainability |
+| Abandoned uploads expire: a row still `PENDING` 75 minutes after creation reads as `EXPIRED`, and DynamoDB TTL deletes it within a few days. Incoming empties after 1 day, Quarantine after 30 | Rows and files clean themselves up with no job to run, while finished uploads stay queryable | Cost optimization, Sustainability |
 | Serverless only, `arm64` Lambdas, on-demand DynamoDB, 14-day logs | Pay only for use; no servers; cheaper compute | Cost optimization, Performance efficiency, Sustainability |
 | Alerts by email on malware or scanner errors, and a dashboard | Problems get noticed | Operational excellence |
 
-**Encryption and scanning.** SSE-S3 on every bucket. Never SSE-C: GuardDuty can't scan it, so every file would land in Quarantine. SSE-KMS is a stretch goal and needs key grants for the router and the GuardDuty role. GuardDuty's S3 malware plan works without a GuardDuty detector, so it won't clash with an account that already has GuardDuty on. Only Incoming is versioned, because copying the exact scanned version needs it.
+**Encryption and scanning.** SSE-S3 on every bucket. Never SSE-C: GuardDuty can't scan it, so every file would land in Quarantine. SSE-KMS is a stretch goal and needs key grants for the router and the GuardDuty role. GuardDuty's S3 malware plan works without a GuardDuty detector, so this stack never creates one. Creating one would fail in an account that already has GuardDuty on. Only Incoming is versioned, because copying the exact scanned version needs it.
 
 **No VPC.** Every service is a managed AWS endpoint reached over IAM-authenticated HTTPS, so a private network would add cost without adding security.
 
@@ -32,7 +32,7 @@ We kept that flow and filled the gaps a design review found, checking each chang
 
 | Pillar | What we do |
 |---|---|
-| Security | Least-privilege role per function; HTTPS-only buckets; SSE-S3; Quarantine readable only by the router; scan first, then check type and size |
+| Security | Least-privilege role per function; HTTPS-only buckets; SSE-S3; Quarantine readable by nobody (the router only writes to it); scan first, then check type and size |
 | Reliability | Two failure queues plus redrive; DynamoDB point-in-time recovery; copy by the scanned version |
 | Operational excellence | Dashboard and alarms; structured logs carrying `upload_id`; API access logs; CI gates every PR |
 | Performance efficiency | Files go straight to S3; 16-byte type checks; server-side copy; on-demand table |
@@ -133,7 +133,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 
 | Tool | Used for |
 |---|---|
-| Terraform 1.10+ (CI uses 1.16.6) | Builds everything. 1.10 is the minimum for S3-native state locking. OpenTofu works locally, but PRs must pass the Terraform check, and never commit the lock file `tofu init` rewrites. |
+| Terraform 1.10+ (CI uses 1.16.6) | Builds everything. 1.10 is the minimum for S3-native state locking (generally available from 1.11). OpenTofu works locally, but PRs must pass the Terraform check. |
 | AWS CLI v2 | Run `aws configure sso` (or `aws configure`) once; Terraform and the "Done when" checks use those credentials. `aws sts get-caller-identity` confirms which account you're in. |
 | Git and the GitHub CLI (`gh`) | Branches, pushes, pull requests, re-running the check |
 | VS Code + HashiCorp Terraform extension | Editing, with mistakes highlighted as you type |
@@ -146,7 +146,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 2. **Build file by file** following the brief in `docs/milestones/<ID>.md`. It names every resource, argument, and value, and links the docs, but gives no code.
 3. **Checkpoint after each file:** `terraform fmt -recursive`, commit, push. The first checkpoint also opens a **draft** pull request. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (`feat(b1): add upload handler`); A1's [Commit messages](milestones/A1.md#commit-messages) explains the format.
 4. **"Done when":** `terraform apply` in your own AWS account, run the brief's checks, then `terraform destroy`.
-5. **Finish:** add the milestone ID to `milestones.txt`, paste the "Done when" output into the PR, fill in the template's "What broke and why" (two lines; "nothing" is fine), and run `gh pr ready`. A teammate approves, and it merges into `main`. Reviewing means reading the diff against the brief, not only seeing a green check.
+5. **Finish:** add the milestone ID to `milestones.txt`, paste the "Done when" output into the PR, fill in the template's "What broke and why" (two lines; "nothing" is fine), and run `gh pr ready`. Teammates review it, and it merges into `main` once the lead approves (every PR edits `milestones.txt`, which CODEOWNERS gives to the lead). The lead's own PRs merge with the admin override. Reviewing means reading the diff against the brief, not only seeing a green check.
 
 ## The GitHub Actions check
 
@@ -156,7 +156,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 - **Next up:** `.github/workflows/next.yml` keeps one issue per milestone in step with `milestones.txt` on `main`, on every push to `main` and every six hours. When the last dependency of a milestone merges, it opens "<ID> is ready", assigned to that portion's owner from `.github/owners.txt`; GitHub emails the assignee. The issue holds the brief, the exact branch name, and the start commands. Each notice carries the `ready-notice` label, which is how the workflow recognises its own issues: renaming one keeps it tracked, and one closed before its milestone merged is reopened on the next run. If the owner cannot be assigned yet (invitation not accepted), the issue opens unassigned and gets its assignee at the next run once they accept. It closes itself when the milestone merges. To re-run by hand: Actions, next, "Run workflow" (from any branch; it always reads `main`).
 - **What it checks:** formatting, `init`, `validate`, then the milestone's spec tests one file at a time (so you see your progress step by step), then every milestone already listed in `milestones.txt` (so nobody can break merged work), then `tflint` with the AWS ruleset. One tflint rule, `terraform_unused_declarations`, is off until INT, because modules declare inputs before the milestone that uses them.
 - **How:** Terraform's built-in `terraform test` with a **mocked AWS provider**. It needs no AWS account and costs nothing. It proves the code matches the spec; "Done when" proves it works in real AWS.
-- **Where results live:** on GitHub only, under **Actions** and on the pull request. Nothing runs on or is saved to your machine.
+- **Where results live:** on GitHub, under **Actions** and on the pull request. `scripts/check-local.sh` runs the same check on your machine as a preview; the GitHub run is the one that counts.
 - **Protected:** `main` requires a pull request, a passing check, and one approval. The tests and the check itself (`tests/`, `scripts/`, `.github/`, `milestones.txt`, `docs/milestones/`) need Sean's approval to change.
 
 ## Deploying into your own account
@@ -225,7 +225,7 @@ Storage takes `router_role_arn` from processing, and processing takes the bucket
 | GuardDuty plan (C) | the policy from AWS's "Adding IAM policy permissions" page |
 | every Lambda | `logs:CreateLogStream`, `logs:PutLogEvents` on its own log group |
 
-Every allow lives on the role's own policy; bucket policies only deny. All three buckets deny any request not using HTTPS, and only the router may read Quarantine. EventBridge gets permission on C's queue and topic through their resource policies.
+Every allow lives on the role's own policy; bucket policies only deny. All three buckets deny any request not using HTTPS. Quarantine also denies reads to everyone except the router role, and that role only writes there, so nobody reads it. EventBridge gets permission on C's queue and topic through their resource policies.
 
 ## Sources
 
