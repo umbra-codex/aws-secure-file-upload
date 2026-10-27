@@ -401,13 +401,15 @@ ls scripts .github/scripts 2>&1
 
 Expected: two commits, the runner's retirement at the top and the removal under it. The removal's file list shows the briefs, the step tests, and `.github/workflows/next.yml` as deleted. `ls` reports that `scripts` and `.github/scripts` do not exist. The ship check's "before" list and its "clean" line are in the pull request, and that is the only place they can be read: the script leaves with this branch.
 
-**Block 2: after the merge, a fresh clone builds from the README alone.** Run this on `main`: `git clone` with no `-b` gives you `main`, which is what a stranger gets, and `main` carries the milestone only after the merge. Clone into an empty folder, so nothing from your working copy helps, and follow only what the README says. From that folder:
+**Block 2: after the merge, a fresh clone builds from the README alone.** Run this on `main`: `git clone` with no `-b` gives you `main`, which is what a stranger gets, and `main` carries the milestone only after the merge. Clone into an empty folder, so nothing from your working copy helps, and follow only what the README says. From the repo root, this makes that folder next to the repo:
 
 ```bash
-exec > >(tee ~/ship-done.txt) 2>&1
+mkdir ../ship-check && cd ../ship-check
+S=$PWD
+exec > >(tee "$S/ship-done.txt") 2>&1
 set -x
-git clone https://github.com/umbra-codex/aws-secure-file-upload ~/ship-check-clone
-cd ~/ship-check-clone
+git clone https://github.com/umbra-codex/aws-secure-file-upload "$S/clone"
+cd "$S/clone"
 cp terraform.tfvars.example terraform.tfvars    # fill in project_name, owner, alert_email
 cp backend.hcl.example backend.hcl              # set bucket to your state bucket's name
 terraform init -backend-config=backend.hcl      # needs your state bucket; use -backend=false to stay offline
@@ -460,11 +462,11 @@ gh pr ready
 A teammate reviews it, and you merge it with your admin override. After the merge, close the "SHIP is ready" issue by hand if one was opened, set the repository's social preview image if you have one, and check the pinned card on your profile. The project is done.
 
 
-**Evidence for the pull request.** `~/ship-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
+**Evidence for the pull request.** `$S/ship-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
 
 ```bash
-{ echo '## Done-when output'; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' ~/ship-done.txt; echo '```'; } > ~/ship-pr.md
-gh pr edit --body-file ~/ship-pr.md
+{ echo '## Done-when output'; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' "$S/ship-done.txt"; echo '```'; } > "$S/ship-pr.md"
+gh pr edit --body-file "$S/ship-pr.md"
 set +x
 exec > /dev/tty 2>&1
 ```

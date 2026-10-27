@@ -22,3 +22,6 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# Done-when evidence (the briefs write it here)
+.evidence/

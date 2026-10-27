@@ -177,7 +177,8 @@ Run the commands one at a time. A command that runs over several lines (ending i
 
 ```bash
 terraform init -backend-config=backend.hcl
-exec > >(tee ~/int-done.txt) 2>&1
+mkdir -p .evidence
+exec > >(tee .evidence/int-done.txt) 2>&1
 set -x
 terraform apply
 API=$(terraform output -raw api_url); API=${API%/}
@@ -350,11 +351,11 @@ gh pr ready
 When this merges, the project is built. [SHIP](SHIP.md) is the last milestone: it removes the build scaffolding and rewrites the README for a reader. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.
 
 
-**Evidence for the pull request.** `~/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
+**Evidence for the pull request.** `.evidence/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
 
 ```bash
-{ cat .github/pull_request_template.md; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' ~/int-done.txt; echo '```'; } > ~/int-pr.md
-gh pr edit --body-file ~/int-pr.md
+{ cat .github/pull_request_template.md; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' .evidence/int-done.txt; echo '```'; } > .evidence/int-pr.md
+gh pr edit --body-file .evidence/int-pr.md
 set +x
 exec > /dev/tty 2>&1
 ```
