@@ -42,3 +42,8 @@ output "table_name" {
   description = "DynamoDB table of upload records."
   value       = module.storage.table_name
 }
+
+output "guardduty_plan_id" {
+  description = "ID of the GuardDuty malware protection plan on the Incoming bucket."
+  value       = module.scanning.guardduty_plan_id
+}
