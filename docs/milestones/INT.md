@@ -16,7 +16,7 @@ Four people built five modules, one reviewed pull request at a time, and each pi
 - **Write the runbook.** A short section of the README that answers "a file was quarantined, now what?" and the other questions an operator asks when something goes wrong.
 - **Run the end-to-end test in a real AWS account.** Eight tests, from a clean upload to a forced failure. This is the proof that the project does what the overview says.
 
-One teammate leads INT: that person writes the pull request and runs all eight tests. Everyone else runs tests 1, 2, and 7 in their own account, then runs `terraform destroy`, and says so in the PR. Plan about 30 minutes of work and then a wait of at least 75 minutes for test 8, which you start first.
+One teammate leads INT: that person writes the pull request and runs all eight tests. Everyone else runs tests 1, 2, and 7 in their own account, then runs `terraform destroy`, and posts the output as a comment on the INT pull request. Plan about 30 minutes of work and then a wait of at least 75 minutes for test 8, which you start first.
 
 Read A1's [How to read the blocks](A1.md#how-to-read-the-blocks) if you haven't.
 
@@ -41,7 +41,7 @@ You'll open the draft pull request at your first checkpoint: GitHub won't create
 
 **Docs:** [terraform_unused_declarations](https://github.com/terraform-linters/tflint-ruleset-terraform/blob/v0.15.0/docs/rules/terraform_unused_declarations.md) · [TFLint configuration](https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/config.md)
 
-Open `.tflint.hcl`. It ends with a comment and a rule block that sets `enabled = false`. Replace both with this rule, written on **one line** (the check matches it as text), and rewrite the comment above it so it says why the rule is on now:
+Open `.tflint.hcl`. It ends with a comment and a rule block that sets `enabled = false`. Replace both with a new comment that says why the rule is on now, followed by this rule, written on **one line** (the check matches it as text):
 
 | Setting | Value |
 |---|---|
@@ -52,7 +52,7 @@ The finished line has the shape `rule "<name>" { enabled = <value> }`. Then open
 
 **What the rule does.** It reports a `variable`, a `locals` entry, or a `data` source that is declared and never read. Terraform itself doesn't mind an unused one, so without this rule, leftovers pile up unseen.
 
-**How you see the result.** `tflint` is not one of the numbered steps. It is a separate step of the run on GitHub (Actions, the newest run) that comes after the check, and GitHub skips it while any numbered step is ❌. So you won't see its findings until step 3 is ✅: finish the runbook, then open the **tflint** step of that run. On a correct build it prints nothing. If it reports `variable "x" is declared but not used`, a milestone left something behind. Fix it in this PR: delete the declaration, along with any argument that only existed to feed it, or use it if it was meant to be used. Leave exactly one block for the rule (your reviewer checks that the old one is gone), and do not turn the rule off again. If the finding is in someone else's module, tell them in the PR and make the smallest fix; ask a reviewer from that portion to review it.
+**How you see the result.** `tflint` is not one of the numbered steps. It is a separate step of the run on GitHub (Actions, the newest run) that comes after the check, and GitHub skips it while any numbered step is ❌. So on GitHub you won't see its findings until step 3 is ✅: finish the runbook, then open the **tflint** step of that run. `scripts/check-local.sh` runs `tflint` at every checkpoint when it is installed, so you may see them on your machine first. On a correct build it prints nothing. If it reports `variable "x" is declared but not used`, a milestone left something behind. Fix it in this PR: delete the declaration, along with any argument that only existed to feed it, or use it if it was meant to be used. Leave exactly one block for the rule (your reviewer checks that the old one is gone), and do not turn the rule off again. If the finding is in someone else's module, tell them in the PR and make the smallest fix; ask a reviewer from that portion to review it.
 
 **✅ Checkpoint: step 1 (tflint)**
 Save `.tflint.hcl` and `milestones.txt`, then run the check in your terminal before you commit. No AWS needed; [A1](A1.md#how-to-see-your-results) explains the output:
@@ -89,7 +89,7 @@ A runbook is the page someone opens at 2 a.m. when something is wrong. It is sho
 
 | Subsection heading (suggested) | It must answer |
 |---|---|
-| `### A file was quarantined, now what` | A **table** with one row for each of the seven `reason` values: `THREATS_FOUND`, `UNSUPPORTED`, `ACCESS_DENIED`, `FAILED`, `INVALID_TYPE`, `TOO_LARGE`, `STALE`. Each row says what the reason means and what the operator should do. Say how to look a file up (the status endpoint, the DynamoDB row) and that nobody but the router can read the Quarantine bucket, though anyone with access can list it. |
+| `### A file was quarantined, now what` | A **table** with one row for each of the seven `reason` values: `THREATS_FOUND`, `UNSUPPORTED`, `ACCESS_DENIED`, `FAILED`, `INVALID_TYPE`, `TOO_LARGE`, `STALE`, and one more row for any other value (a newer GuardDuty status the router passes through). Each row says what the reason means and what the operator should do. Say how to look a file up (the status endpoint, the DynamoDB row) and that nobody but the router can read the Quarantine bucket, though anyone with access can list it. |
 | `### An upload is stuck as PENDING` | What are the possible causes (not uploaded yet, still being scanned, the router failed), and where to look for each. Say when `PENDING` turns into `EXPIRED`, and what then happens to the row. |
 | `### Events are in a failure queue` | There are two: the scan DLQ and `router-failures`. Say what each one holds, name its Terraform output (`scan_dlq_name` and `router_failures_queue_url`), and say that `scripts/redrive.sh` replays `router-failures`. |
 | `### An alert email arrived` | The two kinds (a quarantined file, a scanner problem) and what to do about each. |
@@ -167,9 +167,9 @@ Every milestone already listed in `milestones.txt` is re-checked too, so a red r
 
 ## Done when (in your own AWS account)
 
-This is the real test. It needs the AWS CLI v2 (`aws --version` should start with `aws-cli/2.`), `jq`, `curl`, and `zip` (`zip --version`; install it first if it is missing). It deploys the **whole** project, so everything must be merged. Use small test files: GuardDuty bills per GB scanned.
+This is the real test. It needs the AWS CLI v2 (`aws --version` should start with `aws-cli/2.`), `jq`, `curl`, and `zip` (`zip --version`; install it first if it is missing). It deploys the **whole** project, so everything must be merged. Use a few small test files: GuardDuty bills per GB scanned and per object evaluated.
 
-Run all the blocks below in **one terminal window**, in order: the later commands use variables and functions the earlier ones define. **Everyone** runs blocks 1, 3, 5, and 7 (the setup, tests 1 and 2, test 7, and the cleanup). **The INT lead** runs every block and pastes the whole output into the PR. Test 8 needs at least 75 minutes, so the lead starts it right after block 1.
+Run all the blocks below in **one terminal window**, in order: the later commands use variables and functions the earlier ones define. **Everyone** runs blocks 1, 3, 5, and 7 (the setup, tests 1 and 2, test 7, and the cleanup). **The INT lead** runs every block, and the evidence block at the end puts the whole output into the INT pull request. Test 8 needs at least 75 minutes, so the lead starts it right after block 1.
 
 Run the commands one at a time. A command that runs over several lines (ending in `\`, or a `{ ... }` block) goes in whole. `apply` and `destroy` each stop and ask you to type `yes`, and `destroy` is finished when it prints `Destroy complete!`.
 
@@ -177,7 +177,8 @@ Run the commands one at a time. A command that runs over several lines (ending i
 
 ```bash
 terraform init -backend-config=backend.hcl
-exec > >(tee ~/int-done.txt) 2>&1
+mkdir -p .evidence
+exec > >(tee .evidence/int-done.txt) 2>&1
 set -x
 terraform apply
 API=$(terraform output -raw api_url); API=${API%/}
@@ -252,9 +253,12 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST "$API/upload-url" -H "Content-T
 head -c $(( (MAX_MB + 1) * 1024 * 1024 )) /dev/zero > "$T/big.png"
 upload big.png "$T/big.png"
 aws s3 ls "s3://$INCOMING/uploads/$ID/"
+```
 
-# 6. Recovery. First take a permission away: in modules/processing/iam.tf, remove the Approved bucket's ARN
-#    from the resources of the WriteDestinations statement. Do not commit it. Then:
+**Test 6, recovery: take a permission away first.** Open `modules/processing/iam.tf` and remove the Approved bucket's ARN from the resources of the `WriteDestinations` statement. Save the file, and do not commit it. Then run this block:
+
+```bash
+# 6. Recovery: apply the weaker role, upload, and wait for the failure queue
 terraform apply
 sleep 15
 upload clean.png "$T/clean.png"; ID6=$ID
@@ -310,7 +314,7 @@ Expected:
 5. `400` from the API request, then `400` from S3 on the upload (S3 answers `EntityTooLarge`), and an **empty listing**: the listing is what proves the file never arrived.
 6. `messages in router-failures: 1`, the status `PENDING` while the permission is missing, then `Replayed 1 event(s).`, `"status": "APPROVED"`, and `iam.tf is back to what is committed`.
 7. `No changes. Your infrastructure matches the configuration.` and `plan exit code: 0`. Test 7 can only see a difference between your files and what is deployed. It cannot see an edit that is both saved and applied, which is why test 6 ends by checking the file with `git diff`.
-8. `"status": "EXPIRED"`. An upload that is never used reads `PENDING` until its `expires_at`, which is 75 minutes after the request (15 for the upload window and 60 more), and `EXPIRED` after. If you still see `PENDING`, the time has not passed: wait and ask again.
+8. `"status": "EXPIRED"`, or `{"error": "upload not found"}` if TTL has already deleted the row. Either one means the upload expired. An upload that is never used reads `PENDING` until its `expires_at`, which is 75 minutes after the request (15 for the upload window and 60 more), and `EXPIRED` after. If you still see `PENDING`, the time has not passed: wait and ask again.
 
 Things that commonly go wrong:
 
@@ -340,7 +344,7 @@ Before you mark it ready, check GitHub once. `scripts/remote-check.sh` follows t
 scripts/remote-check.sh
 ```
 
-Paste the "Done when" output into your draft PR. For the lead, that is all eight tests; for everyone else, it is tests 1, 2, and 7, with a line saying so. The tflint step of the run must be green too: the summary table covers the numbered steps only, so look at the run's overall mark on the PR. The repo is squash-only, so the PR's title becomes the commit on `main`, and `--fill` named it after your first checkpoint. Retitle it to the whole milestone, then mark it ready (see A1's [Mark the pull request ready](A1.md#mark-the-pull-request-ready)):
+The evidence block below puts the lead's "Done when" output, all eight tests, into the INT pull request. Everyone else posts tests 1, 2, and 7 as a comment on that pull request, with the second block below. The tflint step of the run must be green too: the summary table covers the numbered steps only, so look at the run's overall mark on the PR. The repo is squash-only, so the PR's title becomes the commit on `main`, and `--fill` named it after your first checkpoint. Retitle it to the whole milestone, then mark it ready (see A1's [Mark the pull request ready](A1.md#mark-the-pull-request-ready)):
 
 ```bash
 gh pr edit --title "feat(int): turn on the last lint rule, add the runbook, and prove the stack end to end"
@@ -350,11 +354,20 @@ gh pr ready
 When this merges, the project is built. [SHIP](SHIP.md) is the last milestone: it removes the build scaffolding and rewrites the README for a reader. Run `terraform destroy` if you haven't, and delete your state bucket only when you are sure you are finished.
 
 
-**Evidence for the pull request.** `~/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
+**Evidence for the pull request.** `.evidence/int-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. The upload form's `x-amz-security-token`, `x-amz-signature`, and `policy` fields hold a temporary AWS token and its signature, so the `sed` line hides them. Wrap the output as the body and send it, then stop the trace and send output back to the terminal:
 
 ```bash
-{ cat .github/pull_request_template.md; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' ~/int-done.txt; echo '```'; } > ~/int-pr.md
-gh pr edit --body-file ~/int-pr.md
+{ cat .github/pull_request_template.md; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' -e 's/((x-amz-(security-token|signature)|policy)[\\"]*[:=] *[\\"]*)[^\\" )]+/\1<redacted>/g' .evidence/int-done.txt; echo '```'; } > .evidence/int-pr.md
+gh pr edit --body-file .evidence/int-pr.md
+set +x
+exec > /dev/tty 2>&1
+```
+
+**Everyone else** posts their tests as a comment on the lead's INT pull request instead. Replace `<number>` with that pull request's number:
+
+```bash
+{ echo '## INT tests 1, 2, and 7'; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' -e 's/((x-amz-(security-token|signature)|policy)[\\"]*[:=] *[\\"]*)[^\\" )]+/\1<redacted>/g' .evidence/int-done.txt; echo '```'; } > .evidence/int-comment.md
+gh pr comment <number> --body-file .evidence/int-comment.md
 set +x
 exec > /dev/tty 2>&1
 ```

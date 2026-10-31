@@ -5,7 +5,7 @@
 | **Portion** | SHIP: Ship (the lead, like INT) |
 | **Branch** | `ship` |
 | **Depends on** | INT (the runbook and the end-to-end test) merged |
-| **Files you touch** | New: `docs/architecture.md`, `docs/decisions.md`, `evidence/README.md`, `LICENSE`. Rewritten: `README.md`, `.github/workflows/ci.yml`. Deleted: every path in the table in Part 5. |
+| **Files you touch** | New: `docs/architecture.md`, `docs/decisions.md`, `evidence/README.md`, `LICENSE`. Rewritten: `README.md`, `.github/workflows/ci.yml`. Deleted: every path in the two tables in Part 5. |
 | **Check** | Runs on GitHub on every push to `ship`. The branch name decides which milestone is checked, so use this exact name. The last step is checked by `scripts/ship-check.sh`, which is in this repository. |
 
 ## Goal
@@ -18,7 +18,7 @@ This milestone turns the repository into the thing you show. By the end:
 - **The design stands on its own.** `docs/architecture.md` holds the flow, the decisions, and the contracts, without the schedule and the portion breakdown.
 - **The proof is in the repository.** `evidence/` holds what the end-to-end test printed, `docs/decisions.md` holds why each choice was made, and `LICENSE` says what anyone may do with it.
 - **A normal workflow replaces the milestone runner.** Formatting, validation, lint, a secret scan, and the product's tests on every push and every pull request. No branch name is read as a milestone any more.
-- **Nothing addressed to a builder survives.** The briefs, the check runner, the helper scripts, the graders, and the words "Checkpoint" and "Done when" are gone, and `scripts/ship-check.sh` proves it.
+- **Nothing addressed to a builder survives.** The briefs, the check runner, the build scripts (only `scripts/redrive.sh` stays, because operators use it), the graders, and the words "Checkpoint" and "Done when" are gone, and `scripts/ship-check.sh` proves it.
 
 Two rules decide every deletion. The code, the infrastructure, and the tests of the product stay. Anything that exists only to build or grade the build goes. The briefs are not lost: they live outside this repository.
 
@@ -98,7 +98,7 @@ The README is not a manual for the team any more. It is the five minutes a stran
 | Architecture | How does it work? | A short Mermaid diagram of the flow plus the numbered steps in plain words, and a link to `docs/architecture.md` for the contracts and the trade-offs. |
 | Proof it works | What proves it? | The badge, a link to the newest green run under Actions, and what `evidence/` holds: the eight end-to-end tests and their results against a real account. |
 | Decisions and trade-offs | What was given up? | Four or five of the choices a reviewer would question, one line each (SSE-S3 and not KMS; Quarantine on every non-clean verdict; copy by `versionId`; no VPC; TTL instead of a cleanup job), and a link to `docs/decisions.md`. |
-| Cost and teardown | What does it cost me to try? | Pay-per-use, GuardDuty billed per GB scanned, test with small files, a budget alert before the first apply, and `terraform destroy` when done. |
+| Cost and teardown | What does it cost me to try? | Pay-per-use, GuardDuty billed per GB scanned and per object evaluated, test with a few small files, a budget alert before the first apply, and `terraform destroy` when done. |
 | How to run it | How do I run it? | Prerequisites, the state bucket, the two `.example` files, `terraform init -backend-config=backend.hcl`, `terraform plan`, `terraform apply`, and the two requests the API takes. |
 | What you can verify yourself | Why should I believe any of it? | Four checks a reader can do without trusting you: read the modules; run the tests with no AWS account; read `evidence/`; compare each decision in `docs/decisions.md` against the code. |
 
@@ -134,7 +134,7 @@ The push runs the same check on GitHub.
 
 #### 3. Three small files that make the claims checkable
 
-**`evidence/README.md`.** The end-to-end run from INT is the proof that the stack does what the README says. Paste what it printed: a table with one row per test (clean file, EICAR file, locked zip, renamed executable, oversize upload, forced router failure and redrive, `plan` with no changes, expired request), the result each one produced, and the date and the run link. Say which AWS account it ran in only as "a test account". Do not paste an account ID, an ARN with an account number, or a bucket name that contains one.
+**`evidence/README.md`.** The end-to-end run from INT is the proof that the stack does what the README says. Paste what it printed: a table with one row per test (clean file, EICAR file, locked zip, renamed executable, oversize upload, forced router failure and redrive, `plan` with no changes, expired request), the result each one produced, the date, and a link to the pull request that holds the full transcript. Say which AWS account it ran in only as "a test account". Do not paste an account ID, an ARN with an account number, or a bucket name that contains one.
 
 **`docs/decisions.md`.** The decision log. A table with one row per decision, and four columns: the date, the decision, why it was made, and where a reader can see it in the code. Start from these six, which the build actually made:
 
@@ -162,7 +162,7 @@ Save the three files, then run the check in your terminal before you commit. No 
 scripts/check-local.sh
 ```
 
-Step 3 should now be ✅. It confirms `LICENSE` starts with the MIT line, `docs/decisions.md` has a title, a table, and a date, and `evidence/README.md` has a title, a table, a link to a run, and the scan verdict the malware test produced. Step 4 stays ❌ until you build it.
+Step 3 should now be ✅. It confirms `LICENSE` starts with the MIT line, `docs/decisions.md` has a title, a table, and a date, and `evidence/README.md` has a title, a table, a link to a pull request, and the scan verdict the malware test produced. Step 4 stays ❌ until you build it.
 
 Then format, commit, and push:
 
@@ -205,7 +205,7 @@ Save `.github/workflows/ci.yml`, then run the check in your terminal before you 
 scripts/check-local.sh
 ```
 
-Step 4 should now be ✅. It confirms the workflow runs on `push` and on `pull_request`, and that every command the table above lists is in the file together with the step that makes it work: the checkout, the Terraform and tflint setup, `terraform init`, the formatting check, `terraform validate`, `tflint --init` and `tflint --recursive`, the secret scan, and `terraform test`. Every numbered step should now be ✅ and the summary should say `👍 SHIP passed.` This is the last commit where the milestone runner still runs; the next part deletes it.
+Step 4 should now be ✅. It confirms the workflow runs on `push` and on `pull_request`, and that every command the table above lists is in the file together with the step that makes it work: the checkout, the Terraform and tflint setup, `terraform init`, the formatting check, `terraform validate`, `tflint --init` and `tflint --recursive`, the secret scan, and `terraform test`. Every numbered step should now be ✅ and the summary should say `👍 SHIP passed.` The step-4 push runs the new workflow, so this local run is the last time the milestone check sees step 4. The next part deletes the runner.
 
 Then format, commit, and push:
 
@@ -222,7 +222,7 @@ The push runs the new workflow, not the milestone check. Follow it with `gh run 
 
 This is the part the milestone exists for. Every file below was listed from this repository, not from memory.
 
-**What leaves.** The counts are the files in the repository the day this milestone opened.
+**What leaves in commit 1 (the scaffolding).** The counts are the files in the repository the day this milestone opened.
 
 | Path | Files | What it is | Why it goes |
 |---|---|---|---|
@@ -234,19 +234,25 @@ This is the part the milestone exists for. Every file below was listed from this
 | `.github/CODEOWNERS` | 1 | Forces the lead's review of the harness | The paths it protects are going. The `main` protection rule still keeps every change behind a pull request and a green check, which is what a visitor needs. |
 | `.github/pull_request_template.md` | 1 | A builder's checklist, including "My milestone ID" | It describes a process that no longer exists. |
 | `.github/workflows/next.yml` | 1 | Opens an issue when a milestone becomes ready | It reads `milestones.txt` and the briefs; both leave. |
-| `.github/scripts/notify.sh`, `ready.sh`, `deps.sh` | 3 | The notifier and the dependency gate | They exist to drive a build in a fixed order. |
-| `.github/scripts/check.sh` | 1 | The milestone check runner | The normal workflow replaces it. |
-| `scripts/` | 5 | `check-local.sh`, `why.sh`, `remote-check.sh`, `lint-briefs.sh`, `ship-check.sh` | Every one of them is a command for a learner, including the check this milestone added. |
 | `tests/*.check` | 29 | Text checks: "this file must contain this line" | Each one grades a step of the build. |
 | `tests/<id>-<n>-*.tftest.hcl` | 44 | One step's spec test, named after its milestone | Each one asserts what one milestone adds, and each names its brief. They grade the build; they do not test the product. |
 | `tests/scripts/` | 7 | Tests of the helper scripts, plus a fake GitHub CLI | They test tooling that is leaving. |
 | `tests/fixtures/` | 1 | A saved run log for those tests | Only those tests read it. |
 
+**What leaves in commit 2 (the runner).** These run the build, so they go last, after the ship check has passed.
+
+| Path | Files | What it is | Why it goes |
+|---|---|---|---|
+| `.github/scripts/notify.sh`, `ready.sh`, `deps.sh` | 3 | The notifier and the dependency gate | They exist to drive a build in a fixed order. |
+| `.github/scripts/check.sh` | 1 | The milestone check runner | The normal workflow replaces it. |
+| `scripts/`, every file except `redrive.sh` | 6 | `check-local.sh`, `why.sh`, `remote-check.sh`, `lint-briefs.sh`, `ship-check.sh`, `bootstrap-state.sh` | Each one is a command for a builder, including the check this milestone added. The shipped README tells a reader to create the state bucket by hand, once, so the script that did it for teammates goes too. |
+
 **What stays.**
 
 | Path | Why it stays |
 |---|---|
-| `*.tf`, `modules/` (24 `.tf` files, and the Lambda sources beside them) | The product: buckets, table, policies, API, functions, queues, rules, alarms, dashboard. |
+| `*.tf`, `modules/` (every `.tf` file, and the Lambda sources beside them) | The product: buckets, table, policies, API, functions, queues, rules, alarms, dashboard. |
+| `scripts/redrive.sh` | The operator's recovery command: it replays the router's failure queue, and the README's runbook uses it. |
 | `tests/root.tftest.hcl` | A test of the product: the root module wires all five modules and guards its inputs. Rename it from `tests/m0.tftest.hcl`, and rewrite its first comment so the file no longer names a milestone. |
 | `docs/architecture.md` | The design, for a reader. |
 | `docs/decisions.md` | The decision log. |
@@ -266,7 +272,7 @@ That last note needs its own decision, because it is not only wording. The rule 
 
 | Rule | What it looks for |
 |---|---|
-| Scaffolding | Any path in the "What leaves" table above, as a file or a directory. |
+| Scaffolding | Any path in the commit 1 table above, as a file or a directory. |
 | Graders | Any file under `tests/` that still names a brief (`docs/milestones`), a step (`step 1`, `step 2`), or a `Brief:` line. A `*.check` file is a grader by definition. |
 | Learner text | `Checkpoint`, `Done when`, `you will`, `milestone`, `PLACEHOLDER`, `Portion `, and a milestone ID, in any file that stays. |
 | Local paths | A path that only exists on one machine: a home-folder shortcut, a folder under the home directory, a notes folder's name, and the scaffold's folder name. |
@@ -274,7 +280,7 @@ That last note needs its own decision, because it is not only wording. The rule 
 | Loose ends | `TODO` and `FIXME`. |
 | Missing anchors | `README.md`, `docs/architecture.md`, `docs/decisions.md`, `LICENSE`, and `evidence/README.md` must exist: a repository that lost its front page is worse than one with a stale note. |
 
-It prints one line per problem, then a count, and exits 1. When the tree is clean it prints one line and exits 0. It skips `.git/`, `.terraform*`, `node_modules/`, `scripts/`, and `.github/scripts/`, because the last commit removes those and a check cannot ask for what it is about to delete. It reads the tree it is run in, and takes an optional directory argument, so its own tests can run it on a fixture.
+It prints one line per problem, then a count, and exits 1. When the tree is clean it prints one line and exits 0. It skips `.git/`, `.terraform*`, `node_modules/`, `.evidence/`, `scripts/`, and `.github/scripts/`. The last commit removes the build tools in the last two, and a check cannot ask for what it is about to delete. `.evidence/` holds your own gitignored evidence files. It reads the tree it is run in, and takes an optional directory argument, so its own tests can run it on a fixture.
 
 **Run it before you delete anything.** It must fail, and its list is the work: everything it names is something to remove or rewrite. Paste that list into the pull request; it is the "before" half of the proof. Then delete, scrub, and run it again until it prints:
 
@@ -286,8 +292,8 @@ The "after" half goes into the pull request too, next to the product tests' resu
 
 **The last two commits, exactly.**
 
-1. `chore(ship): remove the build scaffolding` deletes every path in the first table and scrubs the files that stay. After it, the ship check passes. The milestone runner is still in the tree, but it can no longer run: its ledger and its briefs are gone.
-2. `chore(ship): retire the milestone runner` deletes `scripts/` and `.github/scripts/`, the last of the machinery. The normal workflow, committed in Part 4, is what runs from here on.
+1. `chore(ship): remove the build scaffolding` deletes every path in the commit 1 table and scrubs the files that stay. After it, the ship check passes. The milestone runner is still in the tree, but it can no longer run: its ledger and its briefs are gone.
+2. `chore(ship): retire the milestone runner` deletes every path in the commit 2 table: `.github/scripts/` and every file in `scripts/` except `redrive.sh`, the last of the machinery. The normal workflow, committed in Part 4, is what runs from here on.
 
 Order matters: the ship check passes while the runner is still present, and the final commit is the one that removes it. A reader of the history sees the removal and the cleanup as two steps, which is what they were.
 
@@ -310,11 +316,12 @@ Then run the ship check and keep its output; it fails on purpose and its list is
 scripts/ship-check.sh
 ```
 
-Delete the paths in the first table, scrub the files that stay, and run it again until it prints `SHIP: clean. No scaffolding, learner text, local paths, or secrets.` The local check runs once here, before anything is deleted, because this part removes the command itself; after the first commit there is nothing left for it to read. Then commit the two steps separately:
+Delete the paths in the commit 1 table, scrub the files that stay, and run it again until it prints `SHIP: clean. No scaffolding, learner text, local paths, or secrets.` The local check runs once here, before anything is deleted, because this part removes the command itself; after the first commit there is nothing left for it to read. Then commit the two steps separately:
 
 ```bash
 git add -A && git commit -m "chore(ship): remove the build scaffolding"
-git add -A && git commit -m "chore(ship): retire the milestone runner" && git push
+git rm -r -q .github/scripts scripts/check-local.sh scripts/why.sh scripts/remote-check.sh scripts/lint-briefs.sh scripts/ship-check.sh scripts/bootstrap-state.sh
+git commit -m "chore(ship): retire the milestone runner" && git push
 ```
 
 The push runs the normal workflow. It must be green: if it is red, the removed files were load-bearing, and the failure names what to put back.
@@ -325,7 +332,7 @@ The push runs the normal workflow. It must be green: if it is red, the removed f
 
 The check runs in three places during this milestone, and the third one is new.
 
-`scripts/check-local.sh` runs the milestone check on your machine at every checkpoint, and A1's [How to see your results](A1.md#how-to-see-your-results) explains that screen. GitHub runs the same check on every push to `ship`, up to and including step 4; results are on the run's page under **Actions** and on your pull request. From step 4 on, the push runs the **normal workflow** instead: formatting, validation, lint, the secret scan, and `terraform test`, and its result is the one that matters.
+`scripts/check-local.sh` runs the milestone check on your machine at every checkpoint, and A1's [How to see your results](A1.md#how-to-see-your-results) explains that screen. GitHub runs the same check on every push to `ship` until the step-4 commit; results are on the run's page under **Actions** and on your pull request. From step 4 on, the push runs the **normal workflow** instead: formatting, validation, lint, the secret scan, and `terraform test`, and its result is the one that matters.
 
 **After a push (automatic):** open the repository on GitHub, click **Actions**, click the newest run, and open the job log. The steps are in order, and the first red one names the command that failed.
 
@@ -358,7 +365,7 @@ SHIP runs in five steps. Steps 1 to 4 are checked by the milestone runner; step 
 |---|---|---|
 | 1 (architecture) | `docs/architecture.md` | title, five section headings, the Mermaid flowchart, a DynamoDB status row, the file-key contract, the link to the decision log |
 | 2 (readme) | `README.md` | the badge, seven section headings, links to the architecture note and the evidence, a `bash` block, the product-test command |
-| 3 (proof) | `LICENSE`, `docs/decisions.md`, `evidence/README.md` | MIT, a dated decision table, the run link and the scan verdict |
+| 3 (proof) | `LICENSE`, `docs/decisions.md`, `evidence/README.md` | MIT, a dated decision table, the pull request link and the scan verdict |
 | 4 (workflow) | `.github/workflows/ci.yml` | `push` and `pull_request`, the checkout and the setup steps, `init`, formatting, `validate`, `tflint --init` and `--recursive`, the secret scan, `terraform test` |
 | the removal | the whole tree | `scripts/ship-check.sh` prints `SHIP: clean.` |
 
@@ -399,23 +406,23 @@ git show --stat "$(git log --format=%H --grep='remove the build scaffolding' -1)
 ls scripts .github/scripts 2>&1
 ```
 
-Expected: two commits, the runner's retirement at the top and the removal under it. The removal's file list shows the briefs, the step tests, and `.github/workflows/next.yml` as deleted. `ls` reports that `scripts` and `.github/scripts` do not exist. The ship check's "before" list and its "clean" line are in the pull request, and that is the only place they can be read: the script leaves with this branch.
+Expected: two commits, the runner's retirement at the top and the removal under it. The removal's file list shows the briefs, the step tests, and `.github/workflows/next.yml` as deleted. `ls` lists only `redrive.sh` under `scripts`, and reports that `.github/scripts` does not exist. The ship check's "before" list and its "clean" line are in the pull request, and that is the only place they can be read: the script leaves with this branch.
 
-**Block 2: after the merge, a fresh clone builds from the README alone.** Run this on `main`: `git clone` with no `-b` gives you `main`, which is what a stranger gets, and `main` carries the milestone only after the merge. Clone into an empty folder, so nothing from your working copy helps, and follow only what the README says. From that folder:
+**Block 2: after the merge, a fresh clone builds from the README alone.** Run this on `main`: `git clone` with no `-b` gives you `main`, which is what a stranger gets, and `main` carries the milestone only after the merge. Clone into an empty folder, so nothing from your working copy helps, and follow only what the README says. From the repo root, this makes that folder inside your working copy's `.evidence/`, which git ignores:
 
 ```bash
-exec > >(tee ~/ship-done.txt) 2>&1
+mkdir -p .evidence/ship-check && cd .evidence/ship-check
+S=$PWD
+exec > >(tee "$S/ship-done.txt") 2>&1
 set -x
-git clone https://github.com/umbra-codex/aws-secure-file-upload ~/ship-check-clone
-cd ~/ship-check-clone
-cp terraform.tfvars.example terraform.tfvars    # fill in project_name, owner, alert_email
-cp backend.hcl.example backend.hcl              # set bucket to your state bucket's name
-terraform init -backend-config=backend.hcl      # needs your state bucket; use -backend=false to stay offline
+git clone https://github.com/umbra-codex/aws-secure-file-upload "$S/clone"
+cd "$S/clone"
+terraform init -backend=false -input=false
 terraform validate
 terraform test
 ```
 
-Expected: `terraform validate` prints `Success! The configuration is valid.` and `terraform test` runs every remaining `*.tftest.hcl` and prints `Success! N passed, 0 failed.` Both are offline once the providers are cached. `terraform plan` and `terraform apply` need your AWS credentials and your state bucket: they are not part of this check. The command that proves them is `terraform plan -detailed-exitcode` in that folder, which must exit 0 with no changes after an apply.
+Expected: `terraform validate` prints `Success! The configuration is valid.` and `terraform test` runs every remaining `*.tftest.hcl` and prints `Success! N passed, 0 failed.` Both are offline once the providers are cached. `terraform plan` and `terraform apply` need your AWS credentials and your state bucket: they are not part of this check. The command that proves them is `terraform plan -detailed-exitcode` in that folder, which must exit 0 with no changes after an apply. Then go straight to **Evidence for the pull request** at the end of this section, in the same terminal, before Blocks 3 to 5: until it runs, everything you type is still being recorded.
 
 **Block 3: after the merge, the workflow is green.** On GitHub, **Actions** shows the newest run on `main` for **ci** with a green check, and its steps are the checkout and the two setup steps, formatting, the init step, validation, lint, the secret scan, and the tests. Unverified in this brief; the command that settles it is `gh run list --workflow ci.yml --limit 5`, which must show the newest run on `main` as `completed  success`.
 
@@ -460,11 +467,12 @@ gh pr ready
 A teammate reviews it, and you merge it with your admin override. After the merge, close the "SHIP is ready" issue by hand if one was opened, set the repository's social preview image if you have one, and check the pinned card on your profile. The project is done.
 
 
-**Evidence for the pull request.** `~/ship-done.txt` records every command and its output from `apply` onward, so a reviewer sees what you ran and what it answered. Wrap it as the body and send it, then stop the trace and send output back to the terminal:
+**Evidence for the pull request.** Run this right after Block 2, in the same terminal. `$S/ship-done.txt` records every Block 2 command and its output. The pull request is merged by now, so this posts the record as a comment on it, then stops the trace and sends output back to the terminal:
 
 ```bash
-{ echo '## Done-when output'; echo '```'; sed -E -e '/^\+ (tofu|terraform) destroy/,$d' -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' ~/ship-done.txt; echo '```'; } > ~/ship-pr.md
-gh pr edit --body-file ~/ship-pr.md
+PR=$(gh pr list --state merged --head ship --json number --jq '.[0].number')
+{ echo '## Done-when output'; echo '```'; sed -E -e 's/[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}/<email>/g' "$S/ship-done.txt"; echo '```'; } > "$S/ship-pr.md"
+gh pr comment "$PR" --body-file "$S/ship-pr.md"
 set +x
 exec > /dev/tty 2>&1
 ```

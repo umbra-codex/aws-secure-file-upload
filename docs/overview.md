@@ -163,7 +163,7 @@ Plan about 45 minutes to review C1, D2, and A3; they're the security-heavy ones.
 
 - Create your own state bucket once (repo README, "Getting started"), copy `terraform.tfvars.example` and `backend.hcl.example`, and run `terraform init -backend-config=backend.hcl`.
 - Nothing is hardcoded: names include your project name and account ID, so four teammates' deployments never collide.
-- **Cost:** everything is pay-per-use. Set an AWS Budget alert (for example, $5) before your first `apply`, test with small files (GuardDuty bills per GB scanned), and `terraform destroy` when you're done.
+- **Cost:** everything is pay-per-use. Set an AWS Budget alert (for example, $5) before your first `apply`, test with a few small files (GuardDuty bills per GB scanned and per object evaluated), and `terraform destroy` when you're done.
 - **Security:** the repo is public. Never commit `terraform.tfvars`, `backend.hcl`, state files, or keys (`.gitignore` blocks them). Never weaken Block Public Access to make an upload work; presigned uploads work without it.
 
 ## Final integration test (INT)
@@ -179,7 +179,7 @@ Test 1 is the gate: if a clean file doesn't reach Approved, stop and check the s
 7. `terraform plan` shows no changes.
 8. Request a URL and don't upload; after it expires, status is `EXPIRED`.
 
-The INT lead runs all 8 and pastes the output into the INT PR. Everyone else runs 1, 2, and 7 in their own account, then `destroy`. INT also adds the README runbook ("a file was quarantined, now what") and turns `terraform_unused_declarations` back on.
+The INT lead runs all 8, and the output goes into the INT PR. Everyone else runs 1, 2, and 7 in their own account, posts the output as a comment on that PR, then runs `destroy`. INT also adds the README runbook ("a file was quarantined, now what") and turns `terraform_unused_declarations` back on.
 
 Stretch goal after SHIP: a review in the AWS Well-Architected Tool (Serverless Lens), committed to the repo.
 
@@ -196,7 +196,7 @@ Every portion builds against these. Change one only with the whole team.
 | `upload_id` (key) | UUID | Lambda 1 |
 | `filename`, `declared_type`, `declared_size` | from the request | Lambda 1 |
 | `status` | `PENDING`, `APPROVED`, `QUARANTINED` (`EXPIRED` is computed when read) | Lambda 1, Lambda 2 |
-| `reason` | `THREATS_FOUND`, `UNSUPPORTED`, `ACCESS_DENIED`, `FAILED`, `INVALID_TYPE`, `TOO_LARGE`, `STALE` | Lambda 2 |
+| `reason` | `THREATS_FOUND`, `UNSUPPORTED`, `ACCESS_DENIED`, `FAILED`, `INVALID_TYPE`, `TOO_LARGE`, `STALE`, or any newer GuardDuty status, passed through as is | Lambda 2 |
 | `scanned_version_id`, `destination_bucket` | from the scan and the move | Lambda 2 |
 | `created_at` | ISO 8601 time | Lambda 1 |
 | `expires_at` | a **Number**, Unix seconds: now + 15 minutes + 1 hour (TTL ignores strings). Removed by Lambda 2 when it sets the final status. | Lambda 1 sets it; Lambda 2 removes it |
@@ -221,7 +221,7 @@ Storage takes `router_role_arn` from processing, and processing takes the bucket
 |---|---|
 | upload (B) | `s3:PutObject` on `incoming/uploads/*`; `dynamodb:PutItem` on the table |
 | status (A) | `dynamodb:GetItem` on the table |
-| router (D) | `s3:GetObject`, `s3:GetObjectVersion`, `s3:GetObjectTagging`, `s3:GetObjectVersionTagging`, `s3:DeleteObjectVersion` on Incoming; `s3:PutObject`, `s3:PutObjectTagging` on Approved and Quarantine; `dynamodb:GetItem`, `dynamodb:UpdateItem` on the table; `sqs:SendMessage` on router-failures |
+| router (D) | `s3:GetObject`, `s3:GetObjectVersion`, `s3:GetObjectTagging`, `s3:GetObjectVersionTagging`, `s3:DeleteObjectVersion` on Incoming; `s3:ListBucket` on the Incoming bucket itself; `s3:PutObject`, `s3:PutObjectTagging` on Approved and Quarantine; `dynamodb:GetItem`, `dynamodb:UpdateItem` on the table; `sqs:SendMessage` on router-failures |
 | GuardDuty plan (C) | the policy from AWS's "Adding IAM policy permissions" page |
 | every Lambda | `logs:CreateLogStream`, `logs:PutLogEvents` on its own log group |
 
