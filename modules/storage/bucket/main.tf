@@ -41,3 +41,22 @@ resource "aws_s3_bucket_cors_configuration" "this" {
     max_age_seconds = 3000
   }
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  count  = var.expiration_days == null ? 0 : 1
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id     = "expire-objects"
+    status = "Enabled"
+    filter {}
+    expiration {
+      days = var.expiration_days
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = var.expiration_days
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.this]
+}

@@ -29,13 +29,11 @@ output "quarantine_bucket_arn" {
 }
 
 output "table_name" {
-  description = "Name of the uploads DynamoDB table."
-  # PLACEHOLDER: replace with a reference to the real resource in A2.
-  value = "placeholder-uploads"
+  description = "Name of the uploads DynamoDB"
+  value       = aws_dynamodb_table.uploads.name
 }
 
 output "table_arn" {
   description = "ARN of the uploads DynamoDB table."
-  # PLACEHOLDER: replace with a reference to the real resource in A2.
-  value = "arn:aws:dynamodb:us-east-1:000000000000:table/placeholder-uploads"
+  value       = aws_dynamodb_table.uploads.arn
 }

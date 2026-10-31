@@ -28,6 +28,7 @@ module "incoming" {
 | enable_versioning | bool | false | no | Turn on object versioning. |
 | cors_allowed_origins | list(string) | [] | no | Browser origins allowed to POST. |
 | tags | map(string) | {} | no | Tags: at least Name, Role, ManagedBy. |
+| expiration_days | number | null | no | Days until objects expire. |
 
 ## Outputs
 
@@ -39,3 +40,4 @@ module "incoming" {
 | tags | Tags on the bucket. |
 | versioning_enabled | Whether versioning is on. |
 | cors_enabled | Whether CORS is configured. |
+| expiration_days | Days until objects expire. |

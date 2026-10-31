@@ -20,3 +20,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "expiration_days" {
+  description = "Delete objects (and old versions) this many days after creation."
+  type        = number
+  default     = null
+}
