@@ -1,7 +1,11 @@
 output "guardduty_role_arn" {
   description = "ARN of the GuardDuty malware protection plan's IAM role."
-  # PLACEHOLDER: replace with a reference to the real resource in C1.
-  value = "arn:aws:iam::000000000000:role/placeholder-guardduty"
+  value       = aws_iam_role.guardduty.arn
+}
+
+output "guardduty_plan_id" {
+  description = "ID of the GuardDuty malware protection plan on the Incoming bucket."
+  value       = aws_guardduty_malware_protection_plan.incoming.id
 }
 
 output "scan_rule_arn" {
