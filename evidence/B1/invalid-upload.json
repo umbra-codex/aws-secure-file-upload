@@ -1,0 +1,6 @@
+{
+  "statusCode": 400,
+  "body": {
+    "error": "content_type is not allowed"
+  }
+}
