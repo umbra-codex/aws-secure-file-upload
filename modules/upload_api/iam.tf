@@ -1,7 +1,6 @@
 # ==========================================
 # 1. LAMBDA TRUST POLICY
 # ==========================================
-
 data "aws_iam_policy_document" "assume" {
   statement {
     effect  = "Allow"
@@ -14,11 +13,9 @@ data "aws_iam_policy_document" "assume" {
   }
 }
 
-
 # ==========================================
 # 2. LAMBDA EXECUTION ROLE
 # ==========================================
-
 resource "aws_iam_role" "upload_url" {
   name = "${var.project_name}-upload-url"
 
@@ -31,11 +28,9 @@ resource "aws_iam_role" "upload_url" {
   }
 }
 
-
 # ==========================================
 # 3. LAMBDA PERMISSIONS POLICY
 # ==========================================
-
 data "aws_iam_policy_document" "permissions" {
 
   # Allow presigned uploads to S3
@@ -86,7 +81,6 @@ data "aws_iam_policy_document" "permissions" {
 # ==========================================
 # 4. ATTACH PERMISSIONS TO ROLE
 # ==========================================
-
 resource "aws_iam_role_policy" "upload_url" {
   name = "${var.project_name}-upload-url"
 

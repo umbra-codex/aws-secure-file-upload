@@ -2,11 +2,10 @@
 
 The front door: the HTTP API and Lambda 1, which checks a request, records the upload as `PENDING`, and signs the presigned POST.
 
-
 ## Requirements
 
 | Name | Version |
-|---|---|
+| --- | --- |
 | terraform | >= 1.10.0, < 2.0.0 |
 | aws | ~> 6.69 |
 | archive | ~> 2.8 |
@@ -29,11 +28,10 @@ module "upload_api" {
 }
 ```
 
-
 ## Inputs
 
 | Name | Type | Default | Required | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | project_name | string | — | yes | Prefix for resource names. |
 | incoming_bucket_name | string | — | yes | Incoming bucket name. |
 | incoming_bucket_arn | string | — | yes | Incoming bucket ARN. |
@@ -45,11 +43,10 @@ module "upload_api" {
 | dlq_name | string | — | yes | EventBridge target DLQ name. |
 | router_failures_queue_name | string | — | yes | Lambda 2 failure queue name. |
 
-
 ## Outputs
 
 | Name | Description |
-|---|---|
+| --- | --- |
 | api_url | API base URL. |
 | api_id | API ID. |
 | api_execution_arn | API execution ARN. |
