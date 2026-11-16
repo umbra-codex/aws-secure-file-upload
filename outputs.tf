@@ -42,3 +42,9 @@ output "table_name" {
   description = "DynamoDB table of upload records."
   value       = module.storage.table_name
 }
+
+
+output "upload_function_name" {
+  description = "Lambda 1 (upload-url) function name, for test invokes and logs."
+  value       = module.upload_api.upload_function_name
+}

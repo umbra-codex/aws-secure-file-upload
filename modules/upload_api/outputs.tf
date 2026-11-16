@@ -18,6 +18,10 @@ output "api_execution_arn" {
 
 output "upload_role_arn" {
   description = "ARN of Lambda 1's IAM role."
-  # PLACEHOLDER: replace with a reference to the real resource in B1.
-  value = "arn:aws:iam::000000000000:role/placeholder-upload"
+  value       = aws_iam_role.upload_url.arn
+}
+
+output "upload_function_name" {
+  description = "Name of Lambda 1 (upload-url)."
+  value       = aws_lambda_function.upload_url.function_name
 }
