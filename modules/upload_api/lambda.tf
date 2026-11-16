@@ -1,7 +1,6 @@
 # ==========================================
 # CLOUDWATCH LOG GROUP
 # ==========================================
-
 resource "aws_cloudwatch_log_group" "upload_url" {
   name              = "/aws/lambda/${var.project_name}-upload-url"
   retention_in_days = 14
@@ -16,7 +15,6 @@ resource "aws_cloudwatch_log_group" "upload_url" {
 # ==========================================
 # PACKAGE PYTHON LAMBDA
 # ==========================================
-
 data "archive_file" "upload_url" {
   type        = "zip"
   source_dir  = "${path.module}/src"
@@ -26,7 +24,6 @@ data "archive_file" "upload_url" {
 # ==========================================
 # UPLOAD URL LAMBDA FUNCTION
 # ==========================================
-
 resource "aws_lambda_function" "upload_url" {
   function_name = "${var.project_name}-upload-url"
 
